@@ -1,0 +1,26 @@
+{
+    "name": "pfadihue-whatsapp",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "dev": "nodemon index.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Lela810/PfadiHue-Whatsapp.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/Lela810/PfadiHue-Whatsapp/issues"
+    },
+    "homepage": "https://github.com/Lela810/PfadiHue-Whatsapp#readme",
+    "dependencies": {
+        "qrcode-terminal": "^0.12.0",
+        "whatsapp-web.js": "^1.16.6"
+    },
+    "devDependencies": {
+        "nodemon": "^2.0.16"
+    }
+}
