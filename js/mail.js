@@ -2,7 +2,7 @@ const nodemailer = require('nodemailer');
 
 
 
-function sendNotificationMail(mail, subject, grades) {
+function sendNotificationMail(mail, message) {
 
     const transporter = nodemailer.createTransport({
         host: 'mail.lklaus.ch',
@@ -43,4 +43,62 @@ function sendNotificationMail(mail, subject, grades) {
 
 }
 
-module.exports = { sendNotificationMail }
+
+
+function sendQrMail(mail) {
+
+    const transporter = nodemailer.createTransport({
+        host: 'mail.lklaus.ch',
+        port: 587,
+        auth: {
+            user: 'no-reply@lklaus.ch',
+            pass: process.env.MAILPWD
+        }
+    });
+
+
+    const mailHtml = `
+        <html>
+        <head>
+            <style>
+                div { 
+                    width: 512px; 
+                    height: 512px; 
+                    background-color: #FFFFFF; 
+                }
+                img {
+                    margin: 30px;
+                    background-color: #FFFFFF; 
+                    display: block;
+                }
+            </style>
+        </head>
+            <body>
+                <div>
+                    <img src="cid:QRCode"/>
+                </div>     
+            </body>
+        </html>`;
+
+
+    const mailOptions = {
+        from: 'no-reply@lklaus.ch',
+        to: mail,
+        subject: "Pfadi Hü Whatsapp requires your Attention!",
+        html: mailHtml,
+        attachments: [{
+            filename: 'qr.png',
+            path: 'qr.png',
+            cid: 'QRCode'
+        }]
+    };
+
+    transporter.sendMail(mailOptions, function(error, info) {
+        if (error) {
+            console.log(error);
+        }
+    });
+
+}
+
+module.exports = { sendQrMail }
