@@ -42,8 +42,6 @@ async function startWhatsapp() {
 
         const chat = await message.getChat()
 
-        console.log(chat)
-
         if (chat.isGroup) {
             await whatsappGroup(message)
         } else if (!chat.isGroup) {
