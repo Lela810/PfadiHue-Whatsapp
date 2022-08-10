@@ -2,15 +2,16 @@ const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
 const { sendQrMail } = require('./mail.js');
 const QRCode = require('easyqrcodejs-nodejs');
+const { whatsappGroup } = require('./whatsapp/whatsappGroup.js');
 
 async function startWhatsapp() {
     let client
-    if (process.env.PROD == 'true') {
+    if (process.env.LOCAL_AUTH == 'false') {
+        client = new Client();
+    } else {
         client = new Client({
             authStrategy: new LocalAuth()
         });
-    } else {
-        client = new Client();
     }
 
 
@@ -38,13 +39,15 @@ async function startWhatsapp() {
     });
 
     client.on('message', async(message) => {
-        const mentions = await message.getMentions();
+
         const chat = await message.getChat()
 
-        for (const contact of mentions) {
-            if (contact.isMe) {
-                chat.sendMessage('Test2');
-            }
+        console.log(chat)
+
+        if (chat.isGroup) {
+            await whatsappGroup(message)
+        } else if (!chat.isGroup) {
+            await whatsappPrivate(message)
         }
 
     });
