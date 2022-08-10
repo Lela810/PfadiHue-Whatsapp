@@ -3,6 +3,7 @@
     const { startWhatsapp } = require('./js/whatsapp.js');
 
 
+
     await startWhatsapp()
 
 })();

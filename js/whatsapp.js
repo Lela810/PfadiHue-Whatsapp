@@ -2,6 +2,7 @@ const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
 const { sendQrMail } = require('./mail.js');
 const QRCode = require('easyqrcodejs-nodejs');
+const { bot } = require('./bot.js');
 
 async function startWhatsapp() {
     let client
@@ -37,19 +38,9 @@ async function startWhatsapp() {
         console.log('Client is ready!');
     });
 
-    client.on('message', async(message) => {
-        const mentions = await message.getMentions();
-        const chat = await message.getChat()
-
-        for (const contact of mentions) {
-            if (contact.isMe) {
-                chat.sendMessage('Test2');
-            }
-        }
-
-    });
 
     client.initialize()
+    await bot(client)
 }
 
 
