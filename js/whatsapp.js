@@ -39,21 +39,26 @@ async function startWhatsapp() {
         console.log('Client is ready!');
     });
 
+    let users = {}
+
     client.on('message', async(message) => {
 
         const chat = await message.getChat()
 
+
+
         if (chat.isGroup) {
             const mentions = await message.getMentions();
-            let openSessions = 0
             for (const contact of mentions) {
                 if (contact.isMe) {
-                    openSessions++
-                    console.log("Open Group Sessions:" + openSessions)
-                    await whatsappGroup(message, client)
-                    openSessions--
-                    console.log("Open Group Sessions:" + openSessions)
+                    const user = await message.getContact()
+                    if (!users[user.number]) {
+                        users[user.number] = 'start'
+                    }
 
+                    console.log(users)
+
+                    users[user.number] = await whatsappGroup(users[user.number], message)
                 }
             }
         } else if (!chat.isGroup) {

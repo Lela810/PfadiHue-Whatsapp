@@ -49,12 +49,12 @@ async function loadUser(userID) {
 }
 
 
-async function loadAllUsers(find) {
-    let users
+async function loadAllActivities(find) {
+    let activities
     if (!find) { find = {} }
     try {
-        users = await activity.find(find);
-        return users
+        activities = await activity.find(find);
+        return activities
     } catch (err) {
         console.error(err);
         return err;
@@ -62,4 +62,4 @@ async function loadAllUsers(find) {
 }
 
 
-module.exports = { createActivity, loadAllUsers, findAndUpdate, loadUserNoGrades, loadUser }
+module.exports = { createActivity, loadAllActivities, findAndUpdate, loadUserNoGrades, loadUser }
