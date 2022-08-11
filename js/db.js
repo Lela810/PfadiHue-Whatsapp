@@ -1,12 +1,12 @@
-const user = require('../models/user.js');
+const activity = require('../models/activity.js');
 
 
-async function createUser(json) {
+async function createActivity(json) {
 
-    const userEntry = new user(json)
+    const activityEntry = new activity(json)
 
     try {
-        await userEntry.save()
+        await activityEntry.save()
     } catch (err) {
         throw err;
     }
@@ -14,7 +14,7 @@ async function createUser(json) {
 
 
 async function findAndUpdate(userID, newKeyValue, key) {
-    let userEntry = (await user.find({ 'userID': userID }))[0];
+    let userEntry = (await activity.find({ 'userID': userID }))[0];
     userEntry[key] = newKeyValue;
     try {
         await userEntry.save()
@@ -28,7 +28,7 @@ async function findAndUpdate(userID, newKeyValue, key) {
 async function loadUserNoGrades(userID) {
     let userEntry
     try {
-        userEntry = await user.find({ 'userID': userID }, { grades: 0 });
+        userEntry = await activity.find({ 'userID': userID }, { grades: 0 });
         return userEntry[0]
     } catch (err) {
         console.error(err);
@@ -40,7 +40,7 @@ async function loadUserNoGrades(userID) {
 async function loadUser(userID) {
     let userEntry
     try {
-        userEntry = await user.find({ 'userID': userID });
+        userEntry = await activity.find({ 'userID': userID });
         return userEntry[0]
     } catch (err) {
         console.error(err);
@@ -53,7 +53,7 @@ async function loadAllUsers(find) {
     let users
     if (!find) { find = {} }
     try {
-        users = await user.find(find);
+        users = await activity.find(find);
         return users
     } catch (err) {
         console.error(err);
@@ -62,4 +62,4 @@ async function loadAllUsers(find) {
 }
 
 
-module.exports = { createUser, loadAllUsers, findAndUpdate, loadUserNoGrades, loadUser }
+module.exports = { createActivity, loadAllUsers, findAndUpdate, loadUserNoGrades, loadUser }

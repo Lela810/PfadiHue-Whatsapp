@@ -1,11 +1,11 @@
-const { createUser } = require('../db.js')
+const { createActivity } = require('../db.js')
 
 
 async function whatsappPrivate(message) {
 
     const chat = await message.getChat()
 
-    createUser(chat.id)
+    //createActivity(chat.id)
 
 }
 

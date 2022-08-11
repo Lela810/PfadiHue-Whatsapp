@@ -3,6 +3,7 @@ const qrcode = require('qrcode-terminal');
 const { sendQrMail } = require('./mail.js');
 const QRCode = require('easyqrcodejs-nodejs');
 const { whatsappGroup } = require('./whatsapp/whatsappGroup.js');
+const { whatsappPrivate } = require('./whatsapp/whatsappPrivate.js');
 
 async function startWhatsapp() {
     let client
@@ -43,7 +44,12 @@ async function startWhatsapp() {
         const chat = await message.getChat()
 
         if (chat.isGroup) {
-            await whatsappGroup(message)
+            const mentions = await message.getMentions();
+            for (const contact of mentions) {
+                if (contact.isMe) {
+                    await whatsappGroup(message, client)
+                }
+            }
         } else if (!chat.isGroup) {
             await whatsappPrivate(message)
         }
