@@ -10,7 +10,8 @@ const activitySchema = new mongoose.Schema({
     },
     date: {
         type: Date,
-        index: true
+        index: true,
+        required: false
     },
     startzeit: {
         type: String,

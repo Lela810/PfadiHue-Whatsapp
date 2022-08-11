@@ -52,13 +52,15 @@ async function startWhatsapp() {
             for (const contact of mentions) {
                 if (contact.isMe) {
                     const user = await message.getContact()
-                    if (!users[user.number]) {
+                    if (!users[user.number] || users[user.number] == 'undefined') {
                         users[user.number] = 'start'
                     }
 
-                    console.log(users)
+
 
                     users[user.number] = await whatsappGroup(users[user.number], message)
+
+                    console.log(users)
                 }
             }
         } else if (!chat.isGroup) {
