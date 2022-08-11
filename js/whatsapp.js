@@ -45,9 +45,15 @@ async function startWhatsapp() {
 
         if (chat.isGroup) {
             const mentions = await message.getMentions();
+            let openSessions = 0
             for (const contact of mentions) {
                 if (contact.isMe) {
+                    openSessions++
+                    console.log("Open Group Sessions:" + openSessions)
                     await whatsappGroup(message, client)
+                    openSessions--
+                    console.log("Open Group Sessions:" + openSessions)
+
                 }
             }
         } else if (!chat.isGroup) {
