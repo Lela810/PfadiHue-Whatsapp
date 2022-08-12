@@ -19,6 +19,7 @@
     "dependencies": {
         "dotenv": "^16.0.1",
         "easyqrcodejs-nodejs": "^4.4.3",
+        "moment": "^2.29.4",
         "mongoose": "^6.3.3",
         "mongoose-encryption": "^2.1.2",
         "mongoose-sequence": "^5.3.1",

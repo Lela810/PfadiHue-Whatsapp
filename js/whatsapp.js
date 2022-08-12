@@ -39,7 +39,11 @@ async function startWhatsapp() {
         console.log('Client is ready!');
     });
 
-    let users = {}
+    let users = new Object();
+    let userActivityDate = new Object()
+    let userActivityStart = new Object()
+    let userActivityEnd = new Object()
+    let whatsappGroupReturn
 
     client.on('message', async(message) => {
 
@@ -58,9 +62,16 @@ async function startWhatsapp() {
 
 
 
-                    users[user.number] = await whatsappGroup(users[user.number], message)
+                    whatsappGroupReturn = await whatsappGroup(users[user.number], message, userActivityDate[user.number], userActivityStart[user.number], userActivityEnd[user.number])
+                    users[user.number] = whatsappGroupReturn.userMenu
+                    if (whatsappGroupReturn.userActivityDate != undefined) { userActivityDate[user.number] = whatsappGroupReturn.userActivityDate }
+                    if (whatsappGroupReturn.userActivityStart != undefined) { userActivityStart[user.number] = whatsappGroupReturn.userActivityStart }
+                    if (whatsappGroupReturn.userActivityEnd != undefined) { userActivityEnd[user.number] = whatsappGroupReturn.userActivityEnd }
 
                     console.log(users)
+                    console.log(userActivityDate)
+                    console.log(userActivityStart)
+                    console.log(userActivityEnd)
                 }
             }
         } else if (!chat.isGroup) {
