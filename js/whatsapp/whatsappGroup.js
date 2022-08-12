@@ -1,4 +1,4 @@
-const { loadAllActivities, createActivity } = require('../db.js')
+const { loadAllActivities, loadAllFutureActivities, createActivity, loadAllRegistrations } = require('../db.js')
 const { List } = require('whatsapp-web.js');
 const moment = require('moment');
 const activity = require('../../models/activity.js');
@@ -32,17 +32,40 @@ async function whatsappGroup(userMenu, message, userActivityDate, userActivitySt
     }
 
     if (userMenu == 1) {
-        console.log(await loadAllActivities())
-        await chat.sendMessage("test")
+        const futureActivities = (await loadAllFutureActivities())
+        let message = 'Folgende Aktivitäten sind geplant:\n'
+        let i = 1
+        for (futureActivity in futureActivities) {
+            message += ` *${i})* ${moment(futureActivities[futureActivity].date).format('DD.MM.YYYY')} ${futureActivities[futureActivity].startzeit} - ${futureActivities[futureActivity].endzeit} Uhr\n`
+            i++
+        }
+        await chat.sendMessage(message)
         return {
             userMenu: 'start'
         }
     }
 
     if (userMenu == 2) {
-        await chat.sendMessage(await loadAllActivities())
+
+        nextActivity = (await loadAllFutureActivities())[0]
+        if (nextActivity == undefined) {
+            await chat.sendMessage('Keine Aktivität geplant.')
+            return {
+                userMenu: 'start'
+            }
+        }
+        const registrations = (await loadAllRegistrations(nextActivity.activityID))
+        console.log(registrations)
+        let message = 'Folgende Abmeldungen:\n'
+        let i = 1
+        for (registration in registrations) {
+            console.log(registrations[registration])
+            message += ` *${i})* ${(registrations[registration].name)} (${registrations[registration].pushname}) - +${registrations[registration].tel}\n`
+            i++
+        }
+        await chat.sendMessage(message)
         return {
-            userMenu: 2
+            userMenu: 'start'
         }
     }
 
@@ -54,10 +77,10 @@ async function whatsappGroup(userMenu, message, userActivityDate, userActivitySt
     }
     if (userMenu == 3.1) {
         correctDate = moment(messageText, 'DD.MM.YYYY').format('YYYY-MM-DD')
-        if (!moment(correctDate).isValid()) {
-            await chat.sendMessage('Das Datum wurde nicht korrekt formatiert. *(Format: 31.07.2003)* ')
+        if (!moment(correctDate).isValid() || moment(correctDate).isBefore(moment())) {
+            await chat.sendMessage('Das Datum ist nicht korrekt! *(Format: 31.07.2003)* ')
             return {
-                userMenu: 3
+                userMenu: 3.1
             }
         }
         await chat.sendMessage('Setze die *Startzeit* für die Aktivität. *(Format: 13:30)*')
@@ -67,17 +90,35 @@ async function whatsappGroup(userMenu, message, userActivityDate, userActivitySt
         }
     }
     if (userMenu == 3.2) {
+
+        correctStart = moment(messageText, 'HH:mm').format('HH:mm')
+        if (!moment(correctStart, 'HH:mm').isValid()) {
+            await chat.sendMessage('Die Startzeit ist nicht korrekt! *(Format: 13:30)* ')
+            return {
+                userMenu: 3.2
+            }
+        }
+
         await chat.sendMessage('Setze die *Endzeit* für die Aktivität. *(Format: 16:00)*')
         return {
             userMenu: 3.3,
-            userActivityStart: messageText
+            userActivityStart: correctStart
         }
     }
     if (userMenu == 3.3) {
+
+        correctEnd = moment(messageText, 'HH:mm').format('HH:mm')
+        if (!moment(correctEnd, 'HH:mm').isValid()) {
+            await chat.sendMessage('Die Endzeit ist nicht korrekt! *(Format: 16:00)* ')
+            return {
+                userMenu: 3.3
+            }
+        }
+
         await chat.sendMessage('Bitte bestätige die Aktivität mit *Ja* oder *Nein*')
         return {
             userMenu: 3.4,
-            userActivityEnd: messageText
+            userActivityEnd: correctEnd
         }
     }
     if (userMenu == 3.4) {
@@ -106,7 +147,9 @@ async function whatsappGroup(userMenu, message, userActivityDate, userActivitySt
     }
 
 
-    return
+    return {
+        userMenu: 'start'
+    }
 
 }
 

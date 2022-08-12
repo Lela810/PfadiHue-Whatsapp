@@ -37,30 +37,33 @@ async function startWhatsapp() {
 
     client.on('ready', () => {
         console.log('Client is ready!');
+        client.sendPresenceAvailable()
     });
 
     let users = new Object();
+    let usersPrivate = new Object();
     let userActivityDate = new Object()
     let userActivityStart = new Object()
     let userActivityEnd = new Object()
+    let futureActivities = new Object()
     let whatsappGroupReturn
+    let whatsappGroupReturnPrivate
 
     client.on('message', async(message) => {
 
         const chat = await message.getChat()
+        const user = await message.getContact()
 
+        if (!users[user.number] || users[user.number] == 'undefined') {
+            users[user.number] = 'start'
+            usersPrivate[user.number] = 'start'
+        }
 
 
         if (chat.isGroup) {
             const mentions = await message.getMentions();
             for (const contact of mentions) {
                 if (contact.isMe) {
-                    const user = await message.getContact()
-                    if (!users[user.number] || users[user.number] == 'undefined') {
-                        users[user.number] = 'start'
-                    }
-
-
 
                     whatsappGroupReturn = await whatsappGroup(users[user.number], message, userActivityDate[user.number], userActivityStart[user.number], userActivityEnd[user.number])
                     users[user.number] = whatsappGroupReturn.userMenu
@@ -68,14 +71,12 @@ async function startWhatsapp() {
                     if (whatsappGroupReturn.userActivityStart != undefined) { userActivityStart[user.number] = whatsappGroupReturn.userActivityStart }
                     if (whatsappGroupReturn.userActivityEnd != undefined) { userActivityEnd[user.number] = whatsappGroupReturn.userActivityEnd }
 
-                    console.log(users)
-                    console.log(userActivityDate)
-                    console.log(userActivityStart)
-                    console.log(userActivityEnd)
                 }
             }
         } else if (!chat.isGroup) {
-            await whatsappPrivate(message)
+            whatsappGroupReturnPrivate = await whatsappPrivate(usersPrivate[user.number], message, futureActivities[user.number])
+            usersPrivate[user.number] = whatsappGroupReturnPrivate.userMenuPrivate
+            if (whatsappGroupReturnPrivate.futureActivities != undefined) { futureActivities[user.number] = whatsappGroupReturnPrivate.futureActivities }
         }
 
     });

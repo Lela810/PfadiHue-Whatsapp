@@ -1,7 +1,12 @@
 const activity = require('../models/activity.js');
+const moment = require('moment');
 
 
 async function createActivity(json) {
+
+    if (!json.meldungen) {
+        json['meldungen'] = {}
+    }
 
     const activityEntry = new activity(json)
 
@@ -13,11 +18,22 @@ async function createActivity(json) {
 }
 
 
-async function findAndUpdate(userID, newKeyValue, key) {
-    let userEntry = (await activity.find({ 'userID': userID }))[0];
-    userEntry[key] = newKeyValue;
+async function registerForActivity(activityID, meldung) {
+    let activityEntry = (await activity.find({ 'activityID': activityID }))[0];
+
+    if (!activityEntry.meldungen) {
+        activityEntry['meldungen'] = {}
+    }
+
+    activityEntry.meldungen[meldung.tel] = {
+        name: meldung.name,
+        pushname: meldung.pushname,
+        tel: meldung.tel,
+        timestamp: meldung.timestamp
+    };
+
     try {
-        await userEntry.save()
+        await activityEntry.save()
     } catch (err) {
         throw err;
     }
@@ -25,23 +41,11 @@ async function findAndUpdate(userID, newKeyValue, key) {
 }
 
 
-async function loadUserNoGrades(userID) {
-    let userEntry
+async function loadAllFutureActivities() {
+    let activities
     try {
-        userEntry = await activity.find({ 'userID': userID }, { grades: 0 });
-        return userEntry[0]
-    } catch (err) {
-        console.error(err);
-        return err;
-    }
-}
-
-
-async function loadUser(userID) {
-    let userEntry
-    try {
-        userEntry = await activity.find({ 'userID': userID });
-        return userEntry[0]
+        activities = await activity.find({ date: { $gte: moment().format() } });
+        return activities
     } catch (err) {
         console.error(err);
         return err;
@@ -61,5 +65,16 @@ async function loadAllActivities(find) {
     }
 }
 
+async function loadAllRegistrations(activityID) {
 
-module.exports = { createActivity, loadAllActivities, findAndUpdate, loadUserNoGrades, loadUser }
+    try {
+        let activityEntry = (await activity.find({ 'activityID': activityID }))[0];
+        return activityEntry.meldungen
+    } catch (err) {
+        console.error(err);
+        return err;
+    }
+}
+
+
+module.exports = { createActivity, loadAllActivities, registerForActivity, loadAllFutureActivities, loadAllRegistrations }
