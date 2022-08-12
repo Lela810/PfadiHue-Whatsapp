@@ -52,7 +52,7 @@ async function whatsappPrivate(userMenuPrivate, message, futureActivities) {
                 userMenuPrivate: 1.1
             }
         }
-        if (messageText <= futureActivities.length + 1) {
+        if (messageText <= futureActivities.length) {
             await chat.sendMessage(`Du hast dich für die Aktivität vom \n - ${moment(futureActivities[messageText - 1].date).format('DD.MM.YYYY')} ${futureActivities[messageText - 1].startzeit} - ${futureActivities[messageText - 1].endzeit} Uhr\n an-/abgemeldet.`)
             const meldung = {
                 name: user.name,
@@ -70,6 +70,27 @@ async function whatsappPrivate(userMenuPrivate, message, futureActivities) {
             return {
                 userMenuPrivate: 1.1
             }
+        }
+
+    }
+    if (userMenuPrivate == 2) {
+        futureActivities = (await loadAllFutureActivities())
+        let message = 'Alle deine An-/Abmeldungen:\n'
+        let i = 1
+        for (futureActivity in futureActivities) {
+            try {
+                if (futureActivities[futureActivity].meldungen[user.number]) {
+                    message += ` *${i})* ${moment(futureActivities[futureActivity].date).format('DD.MM.YYYY')} ${futureActivities[futureActivity].startzeit} - ${futureActivities[futureActivity].endzeit} Uhr\n`
+                    i++
+                }
+            } catch (err) {
+                message = 'Du hast noch keine An-/Abmeldungen!'
+            }
+        }
+
+        await chat.sendMessage(message)
+        return {
+            userMenuPrivate: 'start'
         }
 
     }
