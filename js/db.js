@@ -32,6 +32,8 @@ async function registerForActivity(activityID, meldung) {
         timestamp: meldung.timestamp
     };
 
+    activityEntry.markModified('meldungen')
+
     try {
         await activityEntry.save()
     } catch (err) {

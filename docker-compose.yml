@@ -1,20 +1,7 @@
 version: '3.3'
 services:
   web:
-    container_name: schulNetz-Grades
+    container_name: Pfadihue-Whatsapp
     build: .
-    restart: unless-stopped
-    depends_on:
-      - mongodb
-    network_mode: host
-  mongodb:
-    image: mongo:4.4.10
-    container_name: mongodb
-    environment:
-      - MONGO_INITDB_DATABASE=schulNetz-grades
-    volumes:
-      - ./db:/data/db
-    ports:
-      - 27017:27017
     restart: unless-stopped
     network_mode: host

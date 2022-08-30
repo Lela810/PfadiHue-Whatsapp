@@ -55,11 +55,9 @@ async function whatsappGroup(userMenu, message, userActivityDate, userActivitySt
             }
         }
         const registrations = (await loadAllRegistrations(nextActivity.activityID))
-        console.log(registrations)
         let message = 'Folgende Abmeldungen:\n'
         let i = 1
         for (registration in registrations) {
-            console.log(registrations[registration])
             message += ` *${i})* ${(registrations[registration].name)} (${registrations[registration].pushname}) - +${registrations[registration].tel}\n`
             i++
         }
@@ -70,7 +68,7 @@ async function whatsappGroup(userMenu, message, userActivityDate, userActivitySt
     }
 
     if (userMenu == 3) {
-        await chat.sendMessage('Setze das Datum für die neue Aktivität. *(Format: 31.07.2003)* ')
+        await chat.sendMessage('Setze das Datum für die neue Aktivität. *(Format: "@Pfadi Hü DD.MM.YYYY")* ')
         return {
             userMenu: 3.1
         }
