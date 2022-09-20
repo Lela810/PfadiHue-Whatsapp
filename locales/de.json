@@ -3,7 +3,7 @@
     "whatsappGroupPlannedActivities": "Folgende Aktivitäten sind geplant:\n",
     "whatsappGroupNoActivities": "Es sind keine Aktivitäten geplant",
     "whatsappGroupAbmeldungen": "Folgende Abmeldungen sind eingegangen:\n",
-    "whatsappGroupCreateActivityDate": "Setze das Datum für die neue Aktivität. *(Format: \"@Pfadi Hü DD.MM.YYYY\")* ",
+    "whatsappGroupCreateActivityDate": "Setze das Datum für die neue Aktivität. *(Format: \"@Pfadi Hü DD.MM.YYYY\")* \n\n *Stop)* Abbrechen",
     "whatsappGroupCreateActivityDateIncorrect": "Das Datum ist nicht korrekt. *(Format: \"@Pfadi Hü DD.MM.YYYY\")* ",
     "whatsappGroupCreateActivityTime": "Setze die Uhrzeit für die neue Aktivität. *(Format: \"@Pfadi Hü HH:MM\")* ",
     "whatsappGroupCreateActivityTimeIncorrect": "Die Uhrzeit ist nicht korrekt. *(Format: \"@Pfadi Hü HH:MM\")* ",

@@ -42,6 +42,7 @@ async function whatsappPrivate(userMenuPrivate, message, futureActivities) {
                 messageAbmelden += ` *${counterAbmelden})* ${moment(futureActivities[futureActivity].date).format('DD.MM.YYYY')} ${futureActivities[futureActivity].startzeit} - ${futureActivities[futureActivity].endzeit} Uhr\n`
                 counterAbmelden++
             }
+            messageAbmelden += ` *STOP)* Abbrechen\n`
 
             await chat.sendMessage(messageAbmelden)
 
