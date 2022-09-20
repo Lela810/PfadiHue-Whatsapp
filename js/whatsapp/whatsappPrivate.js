@@ -1,5 +1,6 @@
 const { loadAllFutureActivities, registerForActivity } = require('../db.js')
 const moment = require('moment')
+const de = require('../../locales/de.json')
 
 
 async function whatsappPrivate(userMenuPrivate, message, futureActivities) {
@@ -20,78 +21,82 @@ async function whatsappPrivate(userMenuPrivate, message, futureActivities) {
     }
 
 
-    if (userMenuPrivate == 'start') {
-        await chat.sendMessage('Hier kannst du mit mir interagieren.\nAntworte lediglich mit der passenden Nummer ⚜️ \n*1)* Für die nächste Aktivität An-/Abmelden\n*2)* Zeige alle An-/Abmeldungen');
-        return {
-            userMenuPrivate: 'start'
-        }
-    }
-    if (userMenuPrivate == 1) {
-
-        futureActivities = (await loadAllFutureActivities())
-        let message = 'Bitte wähle eine Aktivität aus:\n'
-        let i = 1
-        for (futureActivity in futureActivities) {
-            message += ` *${i})* ${moment(futureActivities[futureActivity].date).format('DD.MM.YYYY')} ${futureActivities[futureActivity].startzeit} - ${futureActivities[futureActivity].endzeit} Uhr\n`
-            i++
-        }
-
-        await chat.sendMessage(message)
-
-        return {
-            userMenuPrivate: 1.1,
-            futureActivities: futureActivities
-        }
-    }
-    if (userMenuPrivate == 1.1) {
-        try {
-            Number(messageText)
-        } catch (err) {
-            await chat.sendMessage('Bitte wähle eine Aktivität aus.')
+    switch (userMenuPrivate) {
+        case 'start':
+            await chat.sendMessage(de.whatsappPrivateStart);
             return {
-                userMenuPrivate: 1.1
+                userMenuPrivate: 'start'
             }
-        }
-        if (messageText <= futureActivities.length) {
-            await chat.sendMessage(`Du hast dich für die Aktivität vom \n - ${moment(futureActivities[messageText - 1].date).format('DD.MM.YYYY')} ${futureActivities[messageText - 1].startzeit} - ${futureActivities[messageText - 1].endzeit} Uhr\n an-/abgemeldet.`)
-            const meldung = {
-                name: user.name,
-                pushname: user.pushname,
-                tel: user.number,
-                timestamp: moment().format(),
-            }
-            registerForActivity(futureActivities[messageText - 1].activityID, meldung)
-            return {
-                userMenuPrivate: 'start',
-                futureActivities: 0
-            }
-        } else {
-            await chat.sendMessage('Bitte wähle eine Aktivität aus.')
-            return {
-                userMenuPrivate: 1.1
-            }
-        }
 
-    }
-    if (userMenuPrivate == 2) {
-        futureActivities = (await loadAllFutureActivities())
-        let message = 'Alle deine An-/Abmeldungen:\n'
-        let i = 1
-        for (futureActivity in futureActivities) {
+        case 1:
+
+            futureActivities = (await loadAllFutureActivities())
+            let messageAbmelden = de.whatsappPrivateAbmelden
+            let counterAbmelden = 1
+            for (futureActivity in futureActivities) {
+                messageAbmelden += ` *${counterAbmelden})* ${moment(futureActivities[futureActivity].date).format('DD.MM.YYYY')} ${futureActivities[futureActivity].startzeit} - ${futureActivities[futureActivity].endzeit} Uhr\n`
+                counterAbmelden++
+            }
+
+            await chat.sendMessage(messageAbmelden)
+
+            return {
+                userMenuPrivate: 1.1,
+                futureActivities: futureActivities
+            }
+
+
+        case 1.1:
+
             try {
-                if (futureActivities[futureActivity].meldungen[user.number]) {
-                    message += ` *${i})* ${moment(futureActivities[futureActivity].date).format('DD.MM.YYYY')} ${futureActivities[futureActivity].startzeit} - ${futureActivities[futureActivity].endzeit} Uhr\n`
-                    i++
-                }
+                Number(messageText)
             } catch (err) {
-                message = 'Du hast noch keine An-/Abmeldungen!'
+                await chat.sendMessage(de.whatsappPrivateChooseActivity)
+                return {
+                    userMenuPrivate: 1.1
+                }
             }
-        }
+            if (messageText <= futureActivities.length) {
+                await chat.sendMessage(`Du hast dich für die Aktivität vom \n - ${moment(futureActivities[messageText - 1].date).format('DD.MM.YYYY')} ${futureActivities[messageText - 1].startzeit} - ${futureActivities[messageText - 1].endzeit} Uhr\n an-/abgemeldet.`)
+                const meldung = {
+                    name: user.name,
+                    pushname: user.pushname,
+                    tel: user.number,
+                    timestamp: moment().format(),
+                }
+                registerForActivity(futureActivities[messageText - 1].activityID, meldung)
+                return {
+                    userMenuPrivate: 'start',
+                    futureActivities: 0
+                }
+            } else {
+                await chat.sendMessage(de.whatsappPrivateChooseActivity)
+                return {
+                    userMenuPrivate: 1.1
+                }
+            }
 
-        await chat.sendMessage(message)
-        return {
-            userMenuPrivate: 'start'
-        }
+
+        case 2:
+
+            futureActivities = (await loadAllFutureActivities())
+            let messageAlleAbmeldungen = de.whatsappPrivateAlleAbmeldungen
+            let counterAlleAbmeldungen = 1
+            for (futureActivity in futureActivities) {
+                try {
+                    if (futureActivities[futureActivity].meldungen[user.number]) {
+                        messageAlleAbmeldungen += ` *${counterAlleAbmeldungen})* ${moment(futureActivities[futureActivity].date).format('DD.MM.YYYY')} ${futureActivities[futureActivity].startzeit} - ${futureActivities[futureActivity].endzeit} Uhr\n`
+                        counterAlleAbmeldungen++
+                    }
+                } catch (err) {
+                    messageAlleAbmeldungen = de.whatsappPrivateKeineAbmeldungen
+                }
+            }
+
+            await chat.sendMessage(messageAlleAbmeldungen)
+            return {
+                userMenuPrivate: 'start'
+            }
 
     }
 
