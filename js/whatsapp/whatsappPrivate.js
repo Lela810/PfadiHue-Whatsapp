@@ -22,7 +22,7 @@ async function whatsappPrivate(userMenuPrivate, message, futureActivities) {
 
 
     if (messageText.toUpperCase() == 'STOP' || messageText.toUpperCase() == 'STOPP') {
-        userMenu = 'start'
+        userMenuPrivate = 'start'
     }
 
 
