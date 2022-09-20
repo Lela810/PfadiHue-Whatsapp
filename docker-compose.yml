@@ -5,3 +5,7 @@ services:
     build: .
     restart: unless-stopped
     network_mode: host
+    env_file:
+      - stack.env
+    labels:
+      - com.centurylinklabs.watchtower.enable=false
