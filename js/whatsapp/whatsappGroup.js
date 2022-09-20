@@ -41,8 +41,8 @@ async function whatsappGroup(userMenu, message, userActivityDate, userActivitySt
 
             const futureActivities = (await loadAllFutureActivities())
             let messagePlannedActivities = de.whatsappGroupPlannedActivities
-            let counterPlannedActivities = 1
-            if (futureActivities.lenght > 0) {
+            if (futureActivities) {
+                let counterPlannedActivities = 1
                 for (futureActivity in futureActivities) {
                     messagePlannedActivities += ` *${counterPlannedActivities})* ${moment(futureActivities[futureActivity].date).format('DD.MM.YYYY')} ${futureActivities[futureActivity].startzeit} - ${futureActivities[futureActivity].endzeit} Uhr\n`
                     counterPlannedActivities++
@@ -68,10 +68,14 @@ async function whatsappGroup(userMenu, message, userActivityDate, userActivitySt
             }
             const registrations = (await loadAllRegistrations(nextActivity.activityID))
             let messageAbmeldungen = de.whatsappGroupAbmeldungen
-            let counterAbmeldungen = 1
-            for (registration in registrations) {
-                messageAbmeldungen += ` *${counterAbmeldungen})* ${(registrations[registration].name)} (${registrations[registration].pushname}) - +${registrations[registration].tel}\n`
-                counterAbmeldungen++
+            if (registrations) {
+                for (registration in registrations) {
+                    let counterAbmeldungen = 1
+                    messageAbmeldungen += ` *${counterAbmeldungen})* ${(registrations[registration].name)} (${registrations[registration].pushname}) - +${registrations[registration].tel}\n`
+                    counterAbmeldungen++
+                }
+            } else {
+                messageAbmeldungen = de.whatsappGroupKeineAbmeldungen
             }
             await chat.sendMessage(messageAbmeldungen)
             await chat.sendMessage(de.whatsappGroupStart);
