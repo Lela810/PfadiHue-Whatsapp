@@ -24,6 +24,10 @@ async function whatsappGroup(userMenu, message, userActivityDate, userActivitySt
         }
     }
 
+    if (messageText.toUpperCase() == 'STOP' || messageText.toUpperCase() == 'STOPP') {
+        userMenu = 'start'
+    }
+
 
     switch (userMenu) {
         case 'start':
@@ -47,6 +51,7 @@ async function whatsappGroup(userMenu, message, userActivityDate, userActivitySt
                 messagePlannedActivities = de.whatsappGroupNoActivities
             }
             await chat.sendMessage(messagePlannedActivities)
+            await chat.sendMessage(de.whatsappGroupStart);
             return {
                 userMenu: 'start'
             }
@@ -69,6 +74,7 @@ async function whatsappGroup(userMenu, message, userActivityDate, userActivitySt
                 counterAbmeldungen++
             }
             await chat.sendMessage(messageAbmeldungen)
+            await chat.sendMessage(de.whatsappGroupStart);
             return {
                 userMenu: 'start'
             }
@@ -150,6 +156,7 @@ async function whatsappGroup(userMenu, message, userActivityDate, userActivitySt
                     userMenu: 3.4
                 }
             }
+            await chat.sendMessage(de.whatsappGroupStart);
             return {
                 userMenu: 'start',
                 userActivityDate: 0,

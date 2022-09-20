@@ -21,6 +21,11 @@ async function whatsappPrivate(userMenuPrivate, message, futureActivities) {
     }
 
 
+    if (messageText.toUpperCase() == 'STOP' || messageText.toUpperCase() == 'STOPP') {
+        userMenu = 'start'
+    }
+
+
     switch (userMenuPrivate) {
         case 'start':
             await chat.sendMessage(de.whatsappPrivateStart);
@@ -65,6 +70,7 @@ async function whatsappPrivate(userMenuPrivate, message, futureActivities) {
                     timestamp: moment().format(),
                 }
                 registerForActivity(futureActivities[messageText - 1].activityID, meldung)
+                await chat.sendMessage(de.whatsappPrivateStart);
                 return {
                     userMenuPrivate: 'start',
                     futureActivities: 0
@@ -94,6 +100,7 @@ async function whatsappPrivate(userMenuPrivate, message, futureActivities) {
             }
 
             await chat.sendMessage(messageAlleAbmeldungen)
+            await chat.sendMessage(de.whatsappPrivateStart);
             return {
                 userMenuPrivate: 'start'
             }
