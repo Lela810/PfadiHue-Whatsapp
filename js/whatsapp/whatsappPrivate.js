@@ -75,7 +75,7 @@ async function whatsappPrivate(userMenuPrivate, message, futureActivities) {
                 }
             }
             if (messageText <= futureActivities.length) {
-                await chat.sendMessage(`Du hast dich für die Aktivität vom \n - ${moment(futureActivities[messageText - 1].date).format('DD.MM.YYYY')} ${futureActivities[messageText - 1].startzeit} - ${futureActivities[messageText - 1].endzeit} Uhr\n abgemeldet.`)
+                await chat.sendMessage(`Du hast dich für die Aktivität vom \n - ${moment(futureActivities[Math.abs(messageText) - 1].date).format('DD.MM.YYYY')} ${futureActivities[Math.abs(messageText) - 1].startzeit} - ${futureActivities[Math.abs(messageText) - 1].endzeit} Uhr\n abgemeldet.`)
                 const meldung = {
                     name: user.name,
                     pushname: user.pushname,
