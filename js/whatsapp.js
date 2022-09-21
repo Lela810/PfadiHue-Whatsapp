@@ -198,9 +198,6 @@ async function startWhatsapp() {
                 userActivityDate[userNumber] = 0
                 userActivityStart[userNumber] = 0
                 userActivityEnd[userNumber] = 0
-
-                const chat = await usersMessage[userNumber].getChat()
-                await chat.sendMessage(de.whatsappGroupStart);
             }
         }
         for (userNumber in usersPrivateTimestamp) {
