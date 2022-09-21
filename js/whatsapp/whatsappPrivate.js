@@ -43,10 +43,11 @@ async function whatsappPrivate(userMenuPrivate, message, futureActivities) {
             futureActivities = (await loadAllFutureActivitiesTN())
             let messageAbmelden = de.whatsappPrivateAbmelden
 
-            if (futureActivities) {
+            if (futureActivities.length > 0) {
                 let counterAbmelden = 1
                 let counterAbgemeldet = 1
                 let prefix = ''
+
                 for (futureActivity in futureActivities) {
                     try {
                         if (futureActivities[futureActivity].meldungen[user.number]) {
@@ -98,12 +99,10 @@ async function whatsappPrivate(userMenuPrivate, message, futureActivities) {
             if (messageText <= futureActivities.length) {
                 await chat.sendMessage(`Du hast dich für die Aktivität vom \n - ${moment(futureActivities[messageText - 1].date).format('DD.MM.YYYY')} ${futureActivities[messageText - 1].startzeit} - ${futureActivities[messageText - 1].endzeit} Uhr\n abgemeldet.`)
                 const meldung = {
-                    name: user.name,
-                    pushname: user.pushname,
-                    tel: user.number,
                     timestamp: moment().format(),
+                    tel: user.number
                 }
-                registerForActivity(futureActivities[messageText - 1].activityID, meldung)
+                registerForActivity(futureActivities[messageText - 1].activityID, meldung, user.number)
                 await chat.sendMessage(de.whatsappPrivateStart);
                 return {
                     userMenuPrivate: 'start',
@@ -181,6 +180,7 @@ async function whatsappPrivate(userMenuPrivate, message, futureActivities) {
             futureActivities = (await loadAllFutureActivitiesTN())
             let messageAlleAbmeldungen = de.whatsappPrivateAlleAbmeldungen
             let counterAlleAbmeldungen = 1
+
             for (futureActivity in futureActivities) {
                 try {
                     if (futureActivities[futureActivity].meldungen[user.number]) {

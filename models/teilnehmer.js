@@ -10,6 +10,10 @@ const teilnehmerSchema = new mongoose.Schema({
         type: String,
         index: true,
         required: false
+    },
+    pushname: {
+        type: String,
+        required: false
     }
 })
 

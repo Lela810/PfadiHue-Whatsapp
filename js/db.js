@@ -29,6 +29,17 @@ async function checkTeilnehmer(tel) {
 }
 
 
+async function getTeilnehmer(tel) {
+    try {
+        const scout = (await teilnehmer.find({ telephone: tel }))[0]
+        return scout
+    } catch (err) {
+        console.error(err);
+        return false;
+    }
+}
+
+
 async function createActivity(json) {
 
     if (!json.meldungen) {
@@ -45,19 +56,16 @@ async function createActivity(json) {
 }
 
 
-async function registerForActivity(activityID, meldung) {
+async function registerForActivity(activityID, meldung, tel) {
     let activityEntry = (await activity.find({ 'activityID': activityID }))[0];
 
     if (!activityEntry.meldungen) {
         activityEntry['meldungen'] = {}
     }
 
-    activityEntry.meldungen[meldung.tel] = {
-        name: meldung.name,
-        pushname: meldung.pushname,
-        tel: meldung.tel,
-        timestamp: meldung.timestamp
-    };
+    activityEntry.meldungen[tel] = {
+        ...meldung
+    }
 
     activityEntry.markModified('meldungen')
 
@@ -103,12 +111,13 @@ async function loadAllFutureActivities() {
 }
 
 async function loadAllFutureActivitiesTN(minTimetoActivity) {
-    let activities
     if (!minTimetoActivity) { minTimetoActivity = 1 }
     try {
-        activities = await activity.find({ date: { $gte: moment().startOf('day') } });
-        if (moment(activities[0].startzeit, 'HH:mm').subtract(minTimetoActivity, 'hour').format('HH:mm') <= moment().format('HH:mm')) {
-            activities.splice(0, 1)
+        let activities = await activity.find({ date: { $gte: moment().startOf('day') } });
+        for (let activity in activities) {
+            if (moment(activities[activity].startzeit, 'HH:mm').subtract(minTimetoActivity, 'hour').format('HH:mm') <= moment().format('HH:mm') && moment().isSame(activities[activity].date, 'day')) {
+                activities.splice(activity, 1)
+            }
         }
         return activities
     } catch (err) {
@@ -142,4 +151,4 @@ async function loadAllRegistrations(activityID) {
 }
 
 
-module.exports = { checkTeilnehmer, createTeilnehmer, createActivity, loadAllActivities, registerForActivity, loadAllFutureActivities, loadAllRegistrations, unregisterForActivity, loadAllFutureActivitiesTN }
+module.exports = { getTeilnehmer, checkTeilnehmer, createTeilnehmer, createActivity, loadAllActivities, registerForActivity, loadAllFutureActivities, loadAllRegistrations, unregisterForActivity, loadAllFutureActivitiesTN }

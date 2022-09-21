@@ -1,4 +1,4 @@
-const { loadAllActivities, loadAllFutureActivities, createActivity, loadAllRegistrations } = require('../db.js')
+const { loadAllActivities, loadAllFutureActivities, createActivity, loadAllRegistrations, getTeilnehmer } = require('../db.js')
 const { List } = require('whatsapp-web.js');
 const moment = require('moment');
 const activity = require('../../models/activity.js');
@@ -95,8 +95,9 @@ async function whatsappGroup(userMenu, message, userActivityDate, userActivitySt
             let messageAbmeldungen = de.whatsappGroupAbmeldungen
             if (registrations) {
                 for (registration in registrations) {
+                    const teilnehmer = await getTeilnehmer(registrations[registration].tel)
                     let counterAbmeldungen = 1
-                    messageAbmeldungen += ` *${counterAbmeldungen})* ${(registrations[registration].name)} (${registrations[registration].pushname}) - +${registrations[registration].tel}\n`
+                    messageAbmeldungen += ` *${counterAbmeldungen})* ${teilnehmer.scoutname} (${teilnehmer.pushname}) - +${teilnehmer.telephone}\n`
                     counterAbmeldungen++
                 }
             } else {
@@ -153,7 +154,7 @@ async function whatsappGroup(userMenu, message, userActivityDate, userActivitySt
         case 3.3:
 
             correctEnd = moment(messageText, 'HH:mm').format('HH:mm')
-            if (!moment(correctEnd, 'HH:mm').isValid()) {
+            if (!moment(correctEnd, 'HH:mm').isValid() || moment(correctEnd, 'HH:mm').isBefore(moment(userActivityStart, 'HH:mm'))) {
                 await chat.sendMessage(de.whatsappGroupCreateActivityEndtimeIncorrect)
                 return {
                     userMenu: 3.3

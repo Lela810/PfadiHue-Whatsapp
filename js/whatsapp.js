@@ -5,7 +5,7 @@ const QRCode = require('easyqrcodejs-nodejs');
 const { whatsappGroup } = require('./whatsapp/whatsappGroup.js');
 const { whatsappPrivate } = require('./whatsapp/whatsappPrivate.js');
 const de = require('../locales/de.json');
-const { checkTeilnehmer } = require('./db.js');
+const { checkTeilnehmer, createTeilnehmer } = require('./db.js');
 
 
 
@@ -122,30 +122,35 @@ async function startWhatsapp() {
                     const chat = await message.getChat()
                     let messageText = message.body
 
-                    if (usersPrivate[user.number] = 'registration') {
+                    if (usersPrivate[user.number] == 'registration') {
 
                         if (messageText.toUpperCase() == 'JA') {
                             await chat.sendMessage(
                                 de.whatsappPrivateRegisterConfirmYes
-                                .replace('{pfadinamen}', capitalizeFirstLetter(messageText))
+                                .replace('{pfadinamen}', usersPrivateName[user.number])
                             )
                             await chat.sendMessage(de.whatsappPrivateStart);
                             usersPrivateRegistered[user.number] = true
+                            usersPrivate[user.number] = 'start'
                             const jsonTeilnehmer = {
                                 telephone: user.number,
-                                scoutname: usersPrivateName[user.number]
+                                scoutname: usersPrivateName[user.number],
+                                pushname: user.pushname
                             }
                             await createTeilnehmer(jsonTeilnehmer)
 
                         } else if (messageText.toUpperCase() == 'NEIN') {
                             await chat.sendMessage(de.whatsappPrivateRegister)
-                            usersPrivate[user.number] = 'start'
+                            usersPrivate[user.number] = 'registrationConfirm'
                         } else {
-                            await chat.sendMessage(de.whatsappPrivateRegisterConfirm);
+                            await chat.sendMessage(
+                                de.whatsappPrivateRegisterConfirm
+                                .replace('{pfadinamen}', usersPrivateName[user.number])
+                            )
                             usersPrivate[user.number] = 'registration'
                         }
 
-                    } else if (usersPrivate[user.number] = 'registrationConfirm') {
+                    } else if (usersPrivate[user.number] == 'registrationConfirm') {
                         if (onlyLetters(messageText)) {
                             await chat.sendMessage(
                                 de.whatsappPrivateRegisterConfirm
@@ -159,14 +164,12 @@ async function startWhatsapp() {
                         }
 
                     } else {
-
                         await chat.sendMessage(de.whatsappPrivateRegister);
                         usersPrivate[user.number] = 'registrationConfirm'
                     }
 
                 }
             } else {
-                console.log('private')
                 whatsappGroupReturnPrivate = await whatsappPrivate(usersPrivate[user.number], message, futureActivities[user.number])
                 usersPrivate[user.number] = whatsappGroupReturnPrivate.userMenuPrivate
                 let changed = false
@@ -188,6 +191,7 @@ async function startWhatsapp() {
 
     async function resetProgress() {
         for (userNumber in usersTimestamp) {
+            if (users[userNumber] == 'start') { delete usersTimestamp[userNumber] }
             if (new Date().getTime() - usersTimestamp[userNumber] > 300000) {
                 delete usersTimestamp[userNumber]
                 users[userNumber] = 'start'
@@ -200,6 +204,7 @@ async function startWhatsapp() {
             }
         }
         for (userNumber in usersPrivateTimestamp) {
+            if (usersPrivate[userNumber] == 'start') { delete usersPrivateTimestamp[userNumber] }
             if (new Date().getTime() - usersPrivateTimestamp[userNumber] > 300000) {
                 delete usersPrivateTimestamp[userNumber]
                 usersPrivate[userNumber] = 'start'
