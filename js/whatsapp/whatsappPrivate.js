@@ -3,6 +3,8 @@ const moment = require('moment')
 const de = require('../../locales/de.json')
 
 
+
+
 async function whatsappPrivate(userMenuPrivate, message, futureActivities) {
 
     const chat = await message.getChat()

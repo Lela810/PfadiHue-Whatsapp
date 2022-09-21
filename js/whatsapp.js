@@ -5,6 +5,19 @@ const QRCode = require('easyqrcodejs-nodejs');
 const { whatsappGroup } = require('./whatsapp/whatsappGroup.js');
 const { whatsappPrivate } = require('./whatsapp/whatsappPrivate.js');
 const de = require('../locales/de.json');
+const { checkTeilnehmer } = require('./db.js');
+
+
+
+function onlyLetters(str) {
+    return /^[a-zA-Z]+$/.test(str);
+}
+
+
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
 
 async function startWhatsapp() {
     let client
@@ -49,6 +62,8 @@ async function startWhatsapp() {
     let usersTimestamp = new Object();
     let usersMessage = new Object();
     let usersPrivate = new Object();
+    let usersPrivateRegistered = new Object();
+    let usersPrivateName = new Object();
     let usersPrivateTimestamp = new Object();
     let usersPrivateMessage = new Object();
     let userActivityDate = new Object()
@@ -98,17 +113,72 @@ async function startWhatsapp() {
                 }
             }
         } else if (!chat.isGroup) {
-            whatsappGroupReturnPrivate = await whatsappPrivate(usersPrivate[user.number], message, futureActivities[user.number])
-            usersPrivate[user.number] = whatsappGroupReturnPrivate.userMenuPrivate
-            let changed = false
-            if (whatsappGroupReturnPrivate.futureActivities != undefined) {
-                futureActivities[user.number] = whatsappGroupReturnPrivate.futureActivities;
-                changed = true
-            }
-            if (whatsappGroupReturnPrivate.userMenuPrivate != 'start') { changed = true }
-            if (changed) {
-                usersPrivateTimestamp[user.number] = new Date().getTime()
-                usersPrivateMessage[user.number] = message
+
+            if (!usersPrivateRegistered[user.number]) {
+                if (await checkTeilnehmer(user.number)) {
+                    usersPrivateRegistered[user.number] = true
+                } else {
+
+                    const chat = await message.getChat()
+                    let messageText = message.body
+
+                    if (usersPrivate[user.number] = 'registration') {
+
+                        if (messageText.toUpperCase() == 'JA') {
+                            await chat.sendMessage(
+                                de.whatsappPrivateRegisterConfirmYes
+                                .replace('{pfadinamen}', capitalizeFirstLetter(messageText))
+                            )
+                            await chat.sendMessage(de.whatsappPrivateStart);
+                            usersPrivateRegistered[user.number] = true
+                            const jsonTeilnehmer = {
+                                telephone: user.number,
+                                scoutname: usersPrivateName[user.number]
+                            }
+                            await createTeilnehmer(jsonTeilnehmer)
+
+                        } else if (messageText.toUpperCase() == 'NEIN') {
+                            await chat.sendMessage(de.whatsappPrivateRegister)
+                            usersPrivate[user.number] = 'start'
+                        } else {
+                            await chat.sendMessage(de.whatsappPrivateRegisterConfirm);
+                            usersPrivate[user.number] = 'registration'
+                        }
+
+                    } else if (usersPrivate[user.number] = 'registrationConfirm') {
+                        if (onlyLetters(messageText)) {
+                            await chat.sendMessage(
+                                de.whatsappPrivateRegisterConfirm
+                                .replace('{pfadinamen}', capitalizeFirstLetter(messageText))
+                            )
+                            usersPrivateName[user.number] = capitalizeFirstLetter(messageText)
+                            usersPrivate[user.number] = 'registration'
+                        } else {
+                            await chat.sendMessage(de.whatsappPrivateRegisterIncorrect);
+                            usersPrivate[user.number] = 'registrationConfirm'
+                        }
+
+                    } else {
+
+                        await chat.sendMessage(de.whatsappPrivateRegister);
+                        usersPrivate[user.number] = 'registrationConfirm'
+                    }
+
+                }
+            } else {
+                console.log('private')
+                whatsappGroupReturnPrivate = await whatsappPrivate(usersPrivate[user.number], message, futureActivities[user.number])
+                usersPrivate[user.number] = whatsappGroupReturnPrivate.userMenuPrivate
+                let changed = false
+                if (whatsappGroupReturnPrivate.futureActivities != undefined) {
+                    futureActivities[user.number] = whatsappGroupReturnPrivate.futureActivities;
+                    changed = true
+                }
+                if (whatsappGroupReturnPrivate.userMenuPrivate != 'start') { changed = true }
+                if (changed) {
+                    usersPrivateTimestamp[user.number] = new Date().getTime()
+                    usersPrivateMessage[user.number] = message
+                }
             }
         }
 

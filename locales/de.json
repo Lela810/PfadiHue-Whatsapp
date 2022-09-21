@@ -26,6 +26,10 @@
     "whatsappPrivateAbgemeldet": "Abgemeldet",
     "whatsappPrivateAbmeldungLoeschen": "Bitte wähle eine Abmeldung aus:\n",
     "whatsappPrivateAlleAbgemeldet": "\n_Du hast dich für alle Aktivitäten abgemeldet_ 😟",
+    "whatsappPrivateRegister": "Wie heisst du zum Pfadinamen? ⚜️",
+    "whatsappPrivateRegisterIncorrect": "Bitte gebe deinen richtigen Pfadinamen an!",
+    "whatsappPrivateRegisterConfirm": "Bitte bestätige mit *Ja* oder *Nein*, dass << {pfadinamen} >> dein Pfadiname ist ⚜️",
+    "whatsappPrivateRegisterConfirmYes": "Danke! Du heisst jetzt << {pfadinamen} >> ⚜️",
 
     "whatsappGlobalStop": "*STOP)* Abbrechen"
 

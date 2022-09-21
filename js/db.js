@@ -1,5 +1,32 @@
 const activity = require('../models/activity.js');
+const teilnehmer = require('../models/teilnehmer.js');
 const moment = require('moment');
+
+
+
+async function createTeilnehmer(json) {
+    const teilnehmerEntry = new teilnehmer(json)
+
+    try {
+        await teilnehmerEntry.save()
+    } catch (err) {
+        throw err;
+    }
+}
+
+
+async function checkTeilnehmer(tel) {
+    try {
+        if (await teilnehmer.countDocuments({ telephone: tel }) > 0) {
+            return true
+        } else {
+            return false
+        }
+    } catch (err) {
+        console.error(err);
+        return false;
+    }
+}
 
 
 async function createActivity(json) {
@@ -115,4 +142,4 @@ async function loadAllRegistrations(activityID) {
 }
 
 
-module.exports = { createActivity, loadAllActivities, registerForActivity, loadAllFutureActivities, loadAllRegistrations, unregisterForActivity, loadAllFutureActivitiesTN }
+module.exports = { checkTeilnehmer, createTeilnehmer, createActivity, loadAllActivities, registerForActivity, loadAllFutureActivities, loadAllRegistrations, unregisterForActivity, loadAllFutureActivitiesTN }
