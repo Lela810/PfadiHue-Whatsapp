@@ -1,4 +1,4 @@
-const { loadAllFutureActivities, registerForActivity, unregisterForActivity } = require('../db.js')
+const { loadAllFutureActivitiesTN, registerForActivity, unregisterForActivity } = require('../db.js')
 const moment = require('moment')
 const de = require('../../locales/de.json')
 
@@ -38,7 +38,7 @@ async function whatsappPrivate(userMenuPrivate, message, futureActivities) {
 
         case 1:
 
-            futureActivities = (await loadAllFutureActivities())
+            futureActivities = (await loadAllFutureActivitiesTN())
             let messageAbmelden = de.whatsappPrivateAbmelden
 
             if (futureActivities) {
@@ -86,14 +86,13 @@ async function whatsappPrivate(userMenuPrivate, message, futureActivities) {
 
         case 1.1:
 
-            try {
-                messageText = Math.abs(Number(messageText))
-            } catch (err) {
+            if (isNaN(messageText) || messageText < 1) {
                 await chat.sendMessage(de.whatsappPrivateChooseActivity)
                 return {
                     userMenuPrivate: 1.1
                 }
             }
+
             if (messageText <= futureActivities.length) {
                 await chat.sendMessage(`Du hast dich für die Aktivität vom \n - ${moment(futureActivities[messageText - 1].date).format('DD.MM.YYYY')} ${futureActivities[messageText - 1].startzeit} - ${futureActivities[messageText - 1].endzeit} Uhr\n abgemeldet.`)
                 const meldung = {
@@ -118,13 +117,15 @@ async function whatsappPrivate(userMenuPrivate, message, futureActivities) {
 
         case 2:
 
-            futureActivities = (await loadAllFutureActivities())
+            futureActivities = (await loadAllFutureActivitiesTN())
             let messageAnmelden = de.whatsappPrivateAbmeldungLoeschen
             let counterAnmelden = 1
+            let futureActivitiesNew = new Array()
             for (futureActivity in futureActivities) {
                 try {
                     if (futureActivities[futureActivity].meldungen[user.number]) {
                         messageAnmelden += ` *${counterAnmelden})* ${moment(futureActivities[futureActivity].date).format('DD.MM.YYYY')} ${futureActivities[futureActivity].startzeit} - ${futureActivities[futureActivity].endzeit} Uhr\n`
+                        futureActivitiesNew.push(futureActivities[futureActivity])
                         counterAnmelden++
                     }
                 } catch {}
@@ -138,20 +139,19 @@ async function whatsappPrivate(userMenuPrivate, message, futureActivities) {
                 }
             }
 
+
             messageAnmelden += de.whatsappGlobalStop
             await chat.sendMessage(messageAnmelden)
 
             return {
                 userMenuPrivate: 2.1,
-                futureActivities: futureActivities
+                futureActivities: futureActivitiesNew
             }
 
 
         case 2.1:
 
-            try {
-                messageText = Math.abs(Number(messageText))
-            } catch (err) {
+            if (isNaN(messageText) || messageText < 1) {
                 await chat.sendMessage(de.whatsappPrivateChooseActivity)
                 return {
                     userMenuPrivate: 2.1
@@ -176,7 +176,7 @@ async function whatsappPrivate(userMenuPrivate, message, futureActivities) {
 
         case 3:
 
-            futureActivities = (await loadAllFutureActivities())
+            futureActivities = (await loadAllFutureActivitiesTN())
             let messageAlleAbmeldungen = de.whatsappPrivateAlleAbmeldungen
             let counterAlleAbmeldungen = 1
             for (futureActivity in futureActivities) {

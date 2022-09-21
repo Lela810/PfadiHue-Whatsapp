@@ -59,14 +59,39 @@ async function whatsappGroup(userMenu, message, userActivityDate, userActivitySt
 
         case 2:
 
-            nextActivity = (await loadAllFutureActivities())[0]
-            if (nextActivity == undefined) {
-                await chat.sendMessage(de.whatsappGroupNoActivities)
+            const futureActivitiesMeldungen = (await loadAllFutureActivities())
+            let messageMeldungen = de.whatsappGroupChooseActivity
+            if (futureActivitiesMeldungen) {
+                let counterPlannedActivities = 1
+                for (futureActivity in futureActivitiesMeldungen) {
+                    messageMeldungen += ` *${counterPlannedActivities})* ${moment(futureActivitiesMeldungen[futureActivity].date).format('DD.MM.YYYY')} ${futureActivitiesMeldungen[futureActivity].startzeit} - ${futureActivitiesMeldungen[futureActivity].endzeit} Uhr\n`
+                    counterPlannedActivities++
+                }
+            } else {
+                messageMeldungen = de.whatsappGroupNoActivities
+                await chat.sendMessage(messageMeldungen)
+                await chat.sendMessage(de.whatsappGroupStart);
                 return {
                     userMenu: 'start'
                 }
             }
-            const registrations = (await loadAllRegistrations(nextActivity.activityID))
+            await chat.sendMessage(messageMeldungen)
+            return {
+                userMenu: 2.1
+            }
+
+
+        case 2.1:
+
+
+            if (isNaN(messageText) || messageText < 1) {
+                await chat.sendMessage(de.whatsappGroupChooseActivityReminder)
+                return {
+                    userMenu: 2.1
+                }
+            }
+            const futureActivitiesChoice = (await loadAllFutureActivities())[messageText - 1]
+            const registrations = (await loadAllRegistrations(futureActivitiesChoice.activityID))
             let messageAbmeldungen = de.whatsappGroupAbmeldungen
             if (registrations) {
                 for (registration in registrations) {
@@ -135,6 +160,12 @@ async function whatsappGroup(userMenu, message, userActivityDate, userActivitySt
                 }
             }
 
+            await chat.sendMessage(
+                de.whatsappGroupCreateActivitydoublecheck
+                .replace('{date}', moment(userActivityDate).format('DD.MM.YYYY'))
+                .replace('{start}', userActivityStart)
+                .replace('{end}', correctEnd)
+            )
             await chat.sendMessage(de.whatsappGroupCreateActivityConfirm)
             return {
                 userMenu: 3.4,
@@ -155,6 +186,12 @@ async function whatsappGroup(userMenu, message, userActivityDate, userActivitySt
             } else if (messageText.toUpperCase() == 'NEIN') {
                 await chat.sendMessage(de.whatsappGroupCreateActivityConfirmNo)
             } else {
+                await chat.sendMessage(
+                    de.whatsappGroupCreateActivitydoublecheck
+                    .replace('{date}', moment(userActivityDate).format('DD.MM.YYYY'))
+                    .replace('{start}', userActivityStart)
+                    .replace('{end}', userActivityEnd)
+                )
                 await chat.sendMessage(de.whatsappGroupCreateActivityConfirm)
                 return {
                     userMenu: 3.4

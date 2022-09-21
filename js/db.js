@@ -67,7 +67,22 @@ async function unregisterForActivity(activityID, tel) {
 async function loadAllFutureActivities() {
     let activities
     try {
-        activities = await activity.find({ date: { $gte: moment().format() } });
+        activities = await activity.find({ date: { $gte: moment().startOf('day') } });
+        return activities
+    } catch (err) {
+        console.error(err);
+        return err;
+    }
+}
+
+async function loadAllFutureActivitiesTN(minTimetoActivity) {
+    let activities
+    if (!minTimetoActivity) { minTimetoActivity = 1 }
+    try {
+        activities = await activity.find({ date: { $gte: moment().startOf('day') } });
+        if (moment(activities[0].startzeit, 'HH:mm').subtract(minTimetoActivity, 'hour').format('HH:mm') <= moment().format('HH:mm')) {
+            activities.splice(0, 1)
+        }
         return activities
     } catch (err) {
         console.error(err);
@@ -100,4 +115,4 @@ async function loadAllRegistrations(activityID) {
 }
 
 
-module.exports = { createActivity, loadAllActivities, registerForActivity, loadAllFutureActivities, loadAllRegistrations, unregisterForActivity }
+module.exports = { createActivity, loadAllActivities, registerForActivity, loadAllFutureActivities, loadAllRegistrations, unregisterForActivity, loadAllFutureActivitiesTN }
