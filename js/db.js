@@ -43,6 +43,27 @@ async function registerForActivity(activityID, meldung) {
 }
 
 
+async function unregisterForActivity(activityID, tel) {
+    let activityEntry = (await activity.find({ 'activityID': activityID }))[0];
+
+    try {
+        delete activityEntry.meldungen[tel]
+    } catch (err) {
+        console.error(err);
+        return err;
+    }
+
+    activityEntry.markModified('meldungen')
+
+    try {
+        await activityEntry.save()
+    } catch (err) {
+        throw err;
+    }
+    return
+}
+
+
 async function loadAllFutureActivities() {
     let activities
     try {
@@ -79,4 +100,4 @@ async function loadAllRegistrations(activityID) {
 }
 
 
-module.exports = { createActivity, loadAllActivities, registerForActivity, loadAllFutureActivities, loadAllRegistrations }
+module.exports = { createActivity, loadAllActivities, registerForActivity, loadAllFutureActivities, loadAllRegistrations, unregisterForActivity }

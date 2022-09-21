@@ -4,6 +4,7 @@ const { sendQrMail } = require('./mail.js');
 const QRCode = require('easyqrcodejs-nodejs');
 const { whatsappGroup } = require('./whatsapp/whatsappGroup.js');
 const { whatsappPrivate } = require('./whatsapp/whatsappPrivate.js');
+const de = require('../locales/de.json');
 
 async function startWhatsapp() {
     let client
@@ -45,7 +46,11 @@ async function startWhatsapp() {
     });
 
     let users = new Object();
+    let usersTimestamp = new Object();
+    let usersMessage = new Object();
     let usersPrivate = new Object();
+    let usersPrivateTimestamp = new Object();
+    let usersPrivateMessage = new Object();
     let userActivityDate = new Object()
     let userActivityStart = new Object()
     let userActivityEnd = new Object()
@@ -71,19 +76,70 @@ async function startWhatsapp() {
 
                     whatsappGroupReturn = await whatsappGroup(users[user.number], message, userActivityDate[user.number], userActivityStart[user.number], userActivityEnd[user.number])
                     users[user.number] = whatsappGroupReturn.userMenu
-                    if (whatsappGroupReturn.userActivityDate != undefined) { userActivityDate[user.number] = whatsappGroupReturn.userActivityDate }
-                    if (whatsappGroupReturn.userActivityStart != undefined) { userActivityStart[user.number] = whatsappGroupReturn.userActivityStart }
-                    if (whatsappGroupReturn.userActivityEnd != undefined) { userActivityEnd[user.number] = whatsappGroupReturn.userActivityEnd }
+                    let changed = false
+                    if (whatsappGroupReturn.userActivityDate != undefined) {
+                        userActivityDate[user.number] = whatsappGroupReturn.userActivityDate;
+                        changed = true
+                    }
+                    if (whatsappGroupReturn.userActivityStart != undefined) {
+                        userActivityStart[user.number] = whatsappGroupReturn.userActivityStart;
+                        changed = true
+                    }
+                    if (whatsappGroupReturn.userActivityEnd != undefined) {
+                        userActivityEnd[user.number] = whatsappGroupReturn.userActivityEnd;
+                        changed = true
+                    }
+                    if (whatsappGroupReturn.userMenu != 'start') { changed = true }
+                    if (changed) {
+                        usersTimestamp[user.number] = new Date().getTime()
+                        usersMessage[user.number] = message
+                    }
 
                 }
             }
         } else if (!chat.isGroup) {
             whatsappGroupReturnPrivate = await whatsappPrivate(usersPrivate[user.number], message, futureActivities[user.number])
             usersPrivate[user.number] = whatsappGroupReturnPrivate.userMenuPrivate
-            if (whatsappGroupReturnPrivate.futureActivities != undefined) { futureActivities[user.number] = whatsappGroupReturnPrivate.futureActivities }
+            let changed = false
+            if (whatsappGroupReturnPrivate.futureActivities != undefined) {
+                futureActivities[user.number] = whatsappGroupReturnPrivate.futureActivities;
+                changed = true
+            }
+            if (whatsappGroupReturnPrivate.userMenuPrivate != 'start') { changed = true }
+            if (changed) {
+                usersPrivateTimestamp[user.number] = new Date().getTime()
+                usersPrivateMessage[user.number] = message
+            }
         }
 
     });
+
+    setInterval(resetProgress, 10000);
+
+    async function resetProgress() {
+        for (userNumber in usersTimestamp) {
+            if (new Date().getTime() - usersTimestamp[userNumber] > 300000) {
+                delete usersTimestamp[userNumber]
+                users[userNumber] = 'start'
+                userActivityDate[userNumber] = 0
+                userActivityStart[userNumber] = 0
+                userActivityEnd[userNumber] = 0
+
+                const chat = await usersMessage[userNumber].getChat()
+                await chat.sendMessage(de.whatsappGroupStart);
+            }
+        }
+        for (userNumber in usersPrivateTimestamp) {
+            if (new Date().getTime() - usersPrivateTimestamp[userNumber] > 300000) {
+                delete usersPrivateTimestamp[userNumber]
+                usersPrivate[userNumber] = 'start'
+                futureActivities[userNumber] = 0
+
+                const chat = await usersPrivateMessage[userNumber].getChat()
+                await chat.sendMessage(de.whatsappPrivateStart);
+            }
+        }
+    }
 
     client.initialize()
 }

@@ -5,21 +5,25 @@
     "whatsappGroupAbmeldungen": "Folgende Abmeldungen sind eingegangen:\n",
     "whatsappGroupKeineAbmeldungen": "Es sind keine Abmeldungen eingegangen 🤗",
     "whatsappGroupCreateActivityDate": "Setze das Datum für die neue Aktivität. *(Format: \"@Pfadi Hü DD.MM.YYYY\")* \n\n *STOP)* Abbrechen",
-    "whatsappGroupCreateActivityDateIncorrect": "Das Datum ist nicht korrekt. *(Format: \"@Pfadi Hü DD.MM.YYYY\")* ",
-    "whatsappGroupCreateActivityTime": "Setze die Uhrzeit für die neue Aktivität. *(Format: \"@Pfadi Hü HH:MM\")* ",
-    "whatsappGroupCreateActivityTimeIncorrect": "Die Uhrzeit ist nicht korrekt. *(Format: \"@Pfadi Hü HH:MM\")* ",
-    "whatsappGroupCreateActivityEndtime": "Setze die Endzeit für die neue Aktivität. *(Format: \"@Pfadi Hü HH:MM\")* ",
-    "whatsappGroupCreateActivityEndtimeIncorrect": "Die Endzeit ist nicht korrekt. *(Format: \"@Pfadi Hü HH:MM\")* ",
-    "whatsappGroupCreateActivityConfirm": "Bitte bestätige die Aktivität mit *Ja* oder *Nein*",
+    "whatsappGroupCreateActivityDateIncorrect": "Das Datum ist nicht korrekt. *(Format: \"@Pfadi Hü DD.MM.YYYY\")* \n\n *STOP)* Abbrechen",
+    "whatsappGroupCreateActivityTime": "Setze die Uhrzeit für die neue Aktivität. *(Format: \"@Pfadi Hü HH:MM\")* \n\n *STOP)* Abbrechen",
+    "whatsappGroupCreateActivityTimeIncorrect": "Die Uhrzeit ist nicht korrekt. *(Format: \"@Pfadi Hü HH:MM\")* \n\n *STOP)* Abbrechen",
+    "whatsappGroupCreateActivityEndtime": "Setze die Endzeit für die neue Aktivität. *(Format: \"@Pfadi Hü HH:MM\")* \n\n *STOP)* Abbrechen",
+    "whatsappGroupCreateActivityEndtimeIncorrect": "Die Endzeit ist nicht korrekt. *(Format: \"@Pfadi Hü HH:MM\")* \n\n *STOP)* Abbrechen",
+    "whatsappGroupCreateActivityConfirm": "Bitte bestätige die Aktivität mit *Ja* oder *Nein* \n *(Format: \"@Pfadi Hü [Ja/Nein]\")* \n\n *STOP)* Abbrechen",
     "whatsappGroupCreateActivityConfirmYes": "Die Aktivität wurde erstellt",
     "whatsappGroupCreateActivityConfirmNo": "Die Aktivität wurde NICHT erstellt",
 
-    "whatsappPrivateStart": "Hier kannst du mit mir interagieren.\nAntworte lediglich mit der passenden Nummer ⚜️ \n*1)* Für die nächste Aktivität Abmelden\n*2)* Zeige alle Abmeldungen",
+    "whatsappPrivateStart": "Hier kannst du mit mir interagieren.\nAntworte lediglich mit der passenden Nummer ⚜️ \n*1)* Für die nächste Aktivität Abmelden\n*2)* Eine Abmeldung löschen\n*3)* Zeige alle Abmeldungen",
     "whatsappPrivateAbmelden": "Bitte wähle eine Aktivität aus:\n",
-    "whatsappPrivateChooseActivity": "Bitte wähle eine Aktivität aus.",
+    "whatsappPrivateChooseActivity": "Bitte wähle eine Aktivität aus. \n\n *STOP)* Abbrechen",
     "whatsappPrivateAlleAbmeldungen": "Alle deine Abmeldungen:\n",
     "whatsappPrivateKeineAbmeldungen": "Du hast dich noch für keine Aktivität abgemeldet 🤗",
-    "whatsappPrivateKeineAktivitaeten": "Es sind noch keine Aktivitäten geplant ⚜️"
+    "whatsappPrivateKeineAktivitaeten": "Es sind noch keine Aktivitäten geplant ⚜️",
+    "whatsappPrivateAbgemeldet": "Abgemeldet",
+    "whatsappPrivateAbmeldungLoeschen": "Bitte wähle eine Abmeldung aus:\n",
+    "whatsappPrivateAlleAbgemeldet": "\n_Du hast dich für alle Aktivitäten abgemeldet_ 😟",
 
+    "whatsappGlobalStop": "*STOP)* Abbrechen"
 
 }
