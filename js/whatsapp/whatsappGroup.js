@@ -2,14 +2,40 @@ const { loadAllActivities, loadAllFutureActivities, createActivity, loadAllRegis
 const { List } = require('whatsapp-web.js');
 const moment = require('moment');
 const activity = require('../../models/activity.js');
-const de = require('../../locales/de.json')
+const de = require('../../locales/de.json');
+const _ = require('mongoose-sequence');
 
 
-async function whatsappGroup(userMenu, message, activityDate, activityStart, activityEnd) {
+async function parseRegistrations(futureActivitiesChoice) {
+    const registrations = (await loadAllRegistrations(futureActivitiesChoice.activityID))
+    let messageAbmeldungen =
+        "*Aktivität vom " +
+        moment(futureActivitiesChoice.date).format('DD.MM.YYYY') +
+        "* \n" +
+        de.whatsappGroupAbmeldungen
+
+    if (Object.keys(registrations) > 0) {
+        for (registration in registrations) {
+            const teilnehmer = await getTeilnehmer(registrations[registration].tel)
+            let counterAbmeldungen = 1
+            messageAbmeldungen += ` *${counterAbmeldungen})* ${teilnehmer.scoutname} (${teilnehmer.pushname}) - +${teilnehmer.telephone}\n`
+            counterAbmeldungen++
+        }
+    } else {
+        messageAbmeldungen = de.whatsappGroupKeineAbmeldungen
+    }
+    return messageAbmeldungen;
+}
+
+
+
+async function whatsappGroup(userMenu, message, activityDate, activityStart, activityEnd, lastMessage) {
 
     const chat = await message.getChat()
 
-    let messageText = message.body.replace('@41794706505 ', '')
+    let messageText = message.body
+        .replace('@41794706505 ', '')
+        .trim()
     if (userMenu == 'start') {
         switch (messageText) {
             case '1':
@@ -75,9 +101,18 @@ async function whatsappGroup(userMenu, message, activityDate, activityStart, act
                     userMenu: 'start'
                 }
             }
+            if (futureActivitiesMeldungen.length < 2) {
+                await chat.sendMessage(await parseRegistrations(futureActivitiesMeldungen[0]))
+                await chat.sendMessage(de.whatsappGroupStart);
+                return {
+                    userMenu: 'start'
+                }
+            }
+            messageMeldungen += de.whatsappGlobalStop
             await chat.sendMessage(messageMeldungen)
             return {
-                userMenu: 2.1
+                userMenu: 2.1,
+                lastMessage: messageMeldungen
             }
 
 
@@ -86,26 +121,14 @@ async function whatsappGroup(userMenu, message, activityDate, activityStart, act
             let futureActivitiesChoice = await loadAllFutureActivities()
 
             if (isNaN(messageText) || messageText < 1 || messageText > futureActivitiesChoice.length) {
-                await chat.sendMessage(de.whatsappGroupChooseActivityReminder)
+                await chat.sendMessage(lastMessage)
                 return {
                     userMenu: 2.1
                 }
             }
 
             futureActivitiesChoice = futureActivitiesChoice[messageText - 1]
-            const registrations = (await loadAllRegistrations(futureActivitiesChoice.activityID))
-            let messageAbmeldungen = de.whatsappGroupAbmeldungen
-            if (registrations) {
-                for (registration in registrations) {
-                    const teilnehmer = await getTeilnehmer(registrations[registration].tel)
-                    let counterAbmeldungen = 1
-                    messageAbmeldungen += ` *${counterAbmeldungen})* ${teilnehmer.scoutname} (${teilnehmer.pushname}) - +${teilnehmer.telephone}\n`
-                    counterAbmeldungen++
-                }
-            } else {
-                messageAbmeldungen = de.whatsappGroupKeineAbmeldungen
-            }
-            await chat.sendMessage(messageAbmeldungen)
+            await chat.sendMessage(await parseRegistrations(futureActivitiesChoice))
             await chat.sendMessage(de.whatsappGroupStart);
             return {
                 userMenu: 'start'

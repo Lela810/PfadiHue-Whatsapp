@@ -5,12 +5,12 @@ const de = require('../../locales/de.json')
 
 
 
-async function whatsappPrivate(userMenu, message, futureActivities) {
+async function whatsappPrivate(userMenu, message, futureActivities, lastMessage) {
 
     const chat = await message.getChat()
     const user = await message.getContact()
 
-    let messageText = message.body
+    let messageText = message.body.trim()
     if (userMenu == 'start') {
         switch (messageText) {
             case '1':
@@ -83,14 +83,21 @@ async function whatsappPrivate(userMenu, message, futureActivities) {
 
             return {
                 userMenu: 1.1,
-                futureActivities: futureActivities
+                futureActivities: futureActivities,
+                lastMessage: messageAbmelden
             }
 
 
         case 1.1:
 
             if (isNaN(messageText) || messageText < 1 || messageText > futureActivities.length) {
-                await chat.sendMessage(de.whatsappPrivateChooseActivity)
+                await chat.sendMessage(lastMessage)
+                return {
+                    userMenu: 1.1
+                }
+            } else if (futureActivities[messageText - 1].meldungen[user.number]) {
+                await chat.sendMessage(de.whatsappPrivateBereitsAbgemeldet)
+                await chat.sendMessage(lastMessage)
                 return {
                     userMenu: 1.1
                 }
@@ -141,14 +148,15 @@ async function whatsappPrivate(userMenu, message, futureActivities) {
 
             return {
                 userMenu: 2.1,
-                futureActivities: futureActivitiesNew
+                futureActivities: futureActivitiesNew,
+                lastMessage: messageAnmelden
             }
 
 
         case 2.1:
 
             if (isNaN(messageText) || messageText < 1 || messageText > futureActivities.length) {
-                await chat.sendMessage(de.whatsappPrivateChooseActivity)
+                await chat.sendMessage(lastMessage)
                 return {
                     userMenu: 2.1
                 }

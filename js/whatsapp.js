@@ -84,7 +84,8 @@ async function startWhatsapp() {
                         message,
                         usersObject[user.number].activityDate,
                         usersObject[user.number].activityStart,
-                        usersObject[user.number].activityEnd
+                        usersObject[user.number].activityEnd,
+                        usersObject[user.number].lastMessage,
                     )
 
 
@@ -174,7 +175,9 @@ async function startWhatsapp() {
             } else {
                 const whatsappPrivateReturn = await whatsappPrivate(
                     usersPrivateObject[user.number].userMenu,
-                    message, usersPrivateObject[user.number].futureActivities
+                    message,
+                    usersPrivateObject[user.number].futureActivities,
+                    usersPrivateObject[user.number].lastMessage,
                 )
 
                 let changed = false
@@ -204,15 +207,16 @@ async function startWhatsapp() {
         for (userForTimestamp in usersPrivateObject) {
             if (usersPrivateObject[userForTimestamp].userMenu == 'start') { delete usersPrivateObject[userForTimestamp].timestamp }
             if (new Date().getTime() - usersPrivateObject[userForTimestamp].timestamp > 300000) {
+
+                const chat = await usersPrivateObject[userForTimestamp].message.getChat()
+                await chat.sendMessage(de.whatsappPrivateStart);
+
                 delete usersPrivateObject[userForTimestamp]
             }
         }
         for (userForTimestamp in usersObject) {
             if (usersObject[userForTimestamp].userMenu == 'start') { delete usersObject[userForTimestamp].timestamp }
             if (new Date().getTime() - usersObject[userForTimestamp].timestamp > 300000) {
-                const chat = await usersObject[userForTimestamp].message.getChat()
-                await chat.sendMessage(de.whatsappPrivateStart);
-
                 delete usersObject[userForTimestamp]
             }
         }

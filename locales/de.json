@@ -15,7 +15,7 @@
     "whatsappGroupCreateActivityConfirm": "Bitte bestätige die Aktivität mit \n*Ja* oder *Nein* \n *(Format: \"@Pfadi Hü [Ja/Nein]\")* \n\n _*STOP)* Abbrechen_",
     "whatsappGroupCreateActivityConfirmYes": "Die Aktivität wurde erstellt",
     "whatsappGroupCreateActivityConfirmNo": "Die Aktivität wurde NICHT erstellt",
-    "whatsappGroupCreateActivitydoublecheck": "*Akvitiät:* \n Datum) {date} \n Start) {start} \n Ende) {end}",
+    "whatsappGroupCreateActivitydoublecheck": "*Akvitiät:* \n Datum) {date} \n Start) {start} Uhr \n Ende) {end} Uhr",
 
     "whatsappPrivateStart": "Hier kannst du mit mir interagieren.\nAntworte lediglich mit der passenden Nummer ⚜️ \n*1)* Für die nächste Aktivität Abmelden\n*2)* Eine Abmeldung löschen\n*3)* Zeige alle Abmeldungen",
     "whatsappPrivateAbmelden": "Bitte wähle eine Aktivität aus:\n",
@@ -30,6 +30,7 @@
     "whatsappPrivateRegisterIncorrect": "Bitte gebe deinen richtigen Pfadinamen an!",
     "whatsappPrivateRegisterConfirm": "Bitte bestätige mit *Ja* oder *Nein*, dass\n>> *{pfadinamen}* \ndein Pfadiname ist ⚜️\n\n_Dieser kann nichtmehr geändert werden_",
     "whatsappPrivateRegisterConfirmYes": "Danke! Du heisst jetzt {pfadinamen} ⚜️",
+    "whatsappPrivateBereitsAbgemeldet": "Du hast dich für diese Aktivität bereits abgemeldet 😟",
 
     "whatsappGlobalStop": "_*STOP)* Abbrechen_"
 
