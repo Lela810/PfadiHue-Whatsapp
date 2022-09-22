@@ -58,129 +58,140 @@ async function startWhatsapp() {
         client.sendPresenceAvailable()
     });
 
-    let users = new Object();
-    let usersTimestamp = new Object();
-    let usersMessage = new Object();
-    let usersPrivate = new Object();
-    let usersPrivateRegistered = new Object();
-    let usersPrivateName = new Object();
-    let usersPrivateTimestamp = new Object();
-    let usersPrivateMessage = new Object();
-    let userActivityDate = new Object()
-    let userActivityStart = new Object()
-    let userActivityEnd = new Object()
-    let futureActivities = new Object()
-    let whatsappGroupReturn
-    let whatsappGroupReturnPrivate
+    let usersObject = new Object();
+    let usersPrivateObject = new Object();
 
     client.on('message', async(message) => {
 
         const chat = await message.getChat()
         const user = await message.getContact()
 
-        if (!users[user.number] || users[user.number] == 'undefined') {
-            users[user.number] = 'start'
-            usersPrivate[user.number] = 'start'
-        }
-
-
         if (chat.isGroup) {
+
+            if (!usersObject[user.number]) {
+                usersObject[user.number] = new Object()
+                usersObject[user.number].userMenu = 'start'
+            } else if (usersObject[user.number].userMenu == 'undefined') {
+                usersObject[user.number].userMenu = 'start'
+            }
+
             const mentions = await message.getMentions();
             for (const contact of mentions) {
                 if (contact.isMe) {
 
-                    whatsappGroupReturn = await whatsappGroup(users[user.number], message, userActivityDate[user.number], userActivityStart[user.number], userActivityEnd[user.number])
-                    users[user.number] = whatsappGroupReturn.userMenu
+                    const whatsappGroupReturn = await whatsappGroup(
+                        usersObject[user.number].userMenu,
+                        message,
+                        usersObject[user.number].activityDate,
+                        usersObject[user.number].activityStart,
+                        usersObject[user.number].activityEnd
+                    )
+
+
                     let changed = false
-                    if (whatsappGroupReturn.userActivityDate != undefined) {
-                        userActivityDate[user.number] = whatsappGroupReturn.userActivityDate;
-                        changed = true
+
+
+                    for (const object in whatsappGroupReturn) {
+                        if (whatsappGroupReturn[object] != undefined) {
+                            usersObject[user.number][object] = whatsappGroupReturn[object]
+                            changed = true
+                        }
                     }
-                    if (whatsappGroupReturn.userActivityStart != undefined) {
-                        userActivityStart[user.number] = whatsappGroupReturn.userActivityStart;
-                        changed = true
-                    }
-                    if (whatsappGroupReturn.userActivityEnd != undefined) {
-                        userActivityEnd[user.number] = whatsappGroupReturn.userActivityEnd;
-                        changed = true
-                    }
+
                     if (whatsappGroupReturn.userMenu != 'start') { changed = true }
+
                     if (changed) {
-                        usersTimestamp[user.number] = new Date().getTime()
-                        usersMessage[user.number] = message
+                        usersObject[user.number].timestamp = new Date().getTime()
+                        usersObject[user.number].message = message
                     }
 
                 }
             }
         } else if (!chat.isGroup) {
 
-            if (!usersPrivateRegistered[user.number]) {
+            if (!usersPrivateObject[user.number]) {
+                usersPrivateObject[user.number] = new Object()
+                usersPrivateObject[user.number].userMenu = 'start'
+            } else if (usersPrivateObject[user.number].userMenu == 'undefined') {
+                usersPrivateObject[user.number].userMenu = 'start'
+            }
+
+            if (!usersPrivateObject[user.number].registered) {
                 if (await checkTeilnehmer(user.number)) {
-                    usersPrivateRegistered[user.number] = true
+                    usersPrivateObject[user.number].registered = true
                 } else {
 
                     const chat = await message.getChat()
                     let messageText = message.body
 
-                    if (usersPrivate[user.number] == 'registration') {
+                    if (usersPrivateObject[user.number].userMenu == 'registration') {
 
                         if (messageText.toUpperCase() == 'JA') {
                             await chat.sendMessage(
                                 de.whatsappPrivateRegisterConfirmYes
-                                .replace('{pfadinamen}', usersPrivateName[user.number])
+                                .replace('{pfadinamen}', usersPrivateObject[user.number].scoutname)
                             )
                             await chat.sendMessage(de.whatsappPrivateStart);
-                            usersPrivateRegistered[user.number] = true
-                            usersPrivate[user.number] = 'start'
+                            usersPrivateObject[user.number].registered = true
+                            usersPrivateObject[user.number].userMenu = 'start'
                             const jsonTeilnehmer = {
                                 telephone: user.number,
-                                scoutname: usersPrivateName[user.number],
+                                scoutname: usersPrivateObject[user.number].scoutname,
                                 pushname: user.pushname
                             }
                             await createTeilnehmer(jsonTeilnehmer)
 
                         } else if (messageText.toUpperCase() == 'NEIN') {
                             await chat.sendMessage(de.whatsappPrivateRegister)
-                            usersPrivate[user.number] = 'registrationConfirm'
+                            usersPrivateObject[user.number].userMenu = 'registrationConfirm'
                         } else {
                             await chat.sendMessage(
                                 de.whatsappPrivateRegisterConfirm
-                                .replace('{pfadinamen}', usersPrivateName[user.number])
+                                .replace('{pfadinamen}', usersPrivateObject[user.number].scoutname)
                             )
-                            usersPrivate[user.number] = 'registration'
+                            usersPrivateObject[user.number].userMenu = 'registration'
                         }
 
-                    } else if (usersPrivate[user.number] == 'registrationConfirm') {
-                        if (onlyLetters(messageText)) {
+                    } else if (usersPrivateObject[user.number].userMenu == 'registrationConfirm') {
+                        if (onlyLetters(messageText) && messageText.length <= 15) {
                             await chat.sendMessage(
                                 de.whatsappPrivateRegisterConfirm
                                 .replace('{pfadinamen}', capitalizeFirstLetter(messageText))
                             )
-                            usersPrivateName[user.number] = capitalizeFirstLetter(messageText)
-                            usersPrivate[user.number] = 'registration'
+                            usersPrivateObject[user.number].scoutname = capitalizeFirstLetter(messageText)
+                            usersPrivateObject[user.number].userMenu = 'registration'
                         } else {
                             await chat.sendMessage(de.whatsappPrivateRegisterIncorrect);
-                            usersPrivate[user.number] = 'registrationConfirm'
+                            usersPrivateObject[user.number].userMenu = 'registrationConfirm'
                         }
 
                     } else {
                         await chat.sendMessage(de.whatsappPrivateRegister);
-                        usersPrivate[user.number] = 'registrationConfirm'
+                        usersPrivateObject[user.number].userMenu = 'registrationConfirm'
                     }
 
                 }
             } else {
-                whatsappGroupReturnPrivate = await whatsappPrivate(usersPrivate[user.number], message, futureActivities[user.number])
-                usersPrivate[user.number] = whatsappGroupReturnPrivate.userMenuPrivate
+                const whatsappPrivateReturn = await whatsappPrivate(
+                    usersPrivateObject[user.number].userMenu,
+                    message, usersPrivateObject[user.number].futureActivities
+                )
+
                 let changed = false
-                if (whatsappGroupReturnPrivate.futureActivities != undefined) {
-                    futureActivities[user.number] = whatsappGroupReturnPrivate.futureActivities;
-                    changed = true
+
+                for (const object in whatsappPrivateReturn) {
+                    if (whatsappPrivateReturn[object] != undefined) {
+                        usersPrivateObject[user.number][object] = whatsappPrivateReturn[object]
+                        changed = true
+                    }
                 }
-                if (whatsappGroupReturnPrivate.userMenuPrivate != 'start') { changed = true }
+
+
+                if (whatsappPrivateReturn.userMenuPrivate != 'start') { changed = true }
+
                 if (changed) {
-                    usersPrivateTimestamp[user.number] = new Date().getTime()
-                    usersPrivateMessage[user.number] = message
+                    usersPrivateObject[user.number].timestamp = new Date().getTime()
+                    usersPrivateObject[user.number].message = message
                 }
             }
         }
@@ -190,25 +201,19 @@ async function startWhatsapp() {
     setInterval(resetProgress, 10000);
 
     async function resetProgress() {
-        for (userNumber in usersTimestamp) {
-            if (users[userNumber] == 'start') { delete usersTimestamp[userNumber] }
-            if (new Date().getTime() - usersTimestamp[userNumber] > 300000) {
-                delete usersTimestamp[userNumber]
-                users[userNumber] = 'start'
-                userActivityDate[userNumber] = 0
-                userActivityStart[userNumber] = 0
-                userActivityEnd[userNumber] = 0
+        for (userForTimestamp in usersPrivateObject) {
+            if (usersPrivateObject[userForTimestamp].userMenu == 'start') { delete usersPrivateObject[userForTimestamp].timestamp }
+            if (new Date().getTime() - usersPrivateObject[userForTimestamp].timestamp > 300000) {
+                delete usersPrivateObject[userForTimestamp]
             }
         }
-        for (userNumber in usersPrivateTimestamp) {
-            if (usersPrivate[userNumber] == 'start') { delete usersPrivateTimestamp[userNumber] }
-            if (new Date().getTime() - usersPrivateTimestamp[userNumber] > 300000) {
-                delete usersPrivateTimestamp[userNumber]
-                usersPrivate[userNumber] = 'start'
-                futureActivities[userNumber] = 0
-
-                const chat = await usersPrivateMessage[userNumber].getChat()
+        for (userForTimestamp in usersObject) {
+            if (usersObject[userForTimestamp].userMenu == 'start') { delete usersObject[userForTimestamp].timestamp }
+            if (new Date().getTime() - usersObject[userForTimestamp].timestamp > 300000) {
+                const chat = await usersObject[userForTimestamp].message.getChat()
                 await chat.sendMessage(de.whatsappPrivateStart);
+
+                delete usersObject[userForTimestamp]
             }
         }
     }

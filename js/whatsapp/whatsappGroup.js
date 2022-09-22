@@ -5,7 +5,7 @@ const activity = require('../../models/activity.js');
 const de = require('../../locales/de.json')
 
 
-async function whatsappGroup(userMenu, message, userActivityDate, userActivityStart, userActivityEnd) {
+async function whatsappGroup(userMenu, message, activityDate, activityStart, activityEnd) {
 
     const chat = await message.getChat()
 
@@ -83,14 +83,16 @@ async function whatsappGroup(userMenu, message, userActivityDate, userActivitySt
 
         case 2.1:
 
+            let futureActivitiesChoice = await loadAllFutureActivities()
 
-            if (isNaN(messageText) || messageText < 1) {
+            if (isNaN(messageText) || messageText < 1 || messageText > futureActivitiesChoice.length) {
                 await chat.sendMessage(de.whatsappGroupChooseActivityReminder)
                 return {
                     userMenu: 2.1
                 }
             }
-            const futureActivitiesChoice = (await loadAllFutureActivities())[messageText - 1]
+
+            futureActivitiesChoice = futureActivitiesChoice[messageText - 1]
             const registrations = (await loadAllRegistrations(futureActivitiesChoice.activityID))
             let messageAbmeldungen = de.whatsappGroupAbmeldungen
             if (registrations) {
@@ -130,7 +132,7 @@ async function whatsappGroup(userMenu, message, userActivityDate, userActivitySt
             await chat.sendMessage(de.whatsappGroupCreateActivityTime)
             return {
                 userMenu: 3.2,
-                userActivityDate: correctDate
+                activityDate: correctDate
             }
 
 
@@ -147,14 +149,14 @@ async function whatsappGroup(userMenu, message, userActivityDate, userActivitySt
             await chat.sendMessage(de.whatsappGroupCreateActivityEndtime)
             return {
                 userMenu: 3.3,
-                userActivityStart: correctStart
+                activityStart: correctStart
             }
 
 
         case 3.3:
 
             correctEnd = moment(messageText, 'HH:mm').format('HH:mm')
-            if (!moment(correctEnd, 'HH:mm').isValid() || moment(correctEnd, 'HH:mm').isBefore(moment(userActivityStart, 'HH:mm'))) {
+            if (!moment(correctEnd, 'HH:mm').isValid() || moment(correctEnd, 'HH:mm').isBefore(moment(activityStart, 'HH:mm'))) {
                 await chat.sendMessage(de.whatsappGroupCreateActivityEndtimeIncorrect)
                 return {
                     userMenu: 3.3
@@ -163,14 +165,14 @@ async function whatsappGroup(userMenu, message, userActivityDate, userActivitySt
 
             await chat.sendMessage(
                 de.whatsappGroupCreateActivitydoublecheck
-                .replace('{date}', moment(userActivityDate).format('DD.MM.YYYY'))
-                .replace('{start}', userActivityStart)
+                .replace('{date}', moment(activityDate).format('DD.MM.YYYY'))
+                .replace('{start}', activityStart)
                 .replace('{end}', correctEnd)
             )
             await chat.sendMessage(de.whatsappGroupCreateActivityConfirm)
             return {
                 userMenu: 3.4,
-                userActivityEnd: correctEnd
+                activityEnd: correctEnd
             }
 
 
@@ -178,9 +180,9 @@ async function whatsappGroup(userMenu, message, userActivityDate, userActivitySt
 
             if (messageText.toUpperCase() == 'JA') {
                 const finishedActivity = {
-                    date: userActivityDate,
-                    startzeit: userActivityStart,
-                    endzeit: userActivityEnd
+                    date: activityDate,
+                    startzeit: activityStart,
+                    endzeit: activityEnd
                 }
                 await createActivity(finishedActivity)
                 await chat.sendMessage(de.whatsappGroupCreateActivityConfirmYes)
@@ -189,9 +191,9 @@ async function whatsappGroup(userMenu, message, userActivityDate, userActivitySt
             } else {
                 await chat.sendMessage(
                     de.whatsappGroupCreateActivitydoublecheck
-                    .replace('{date}', moment(userActivityDate).format('DD.MM.YYYY'))
-                    .replace('{start}', userActivityStart)
-                    .replace('{end}', userActivityEnd)
+                    .replace('{date}', moment(activityDate).format('DD.MM.YYYY'))
+                    .replace('{start}', activityStart)
+                    .replace('{end}', activityEnd)
                 )
                 await chat.sendMessage(de.whatsappGroupCreateActivityConfirm)
                 return {
@@ -201,9 +203,9 @@ async function whatsappGroup(userMenu, message, userActivityDate, userActivitySt
             await chat.sendMessage(de.whatsappGroupStart);
             return {
                 userMenu: 'start',
-                userActivityDate: 0,
-                userActivityStart: 0,
-                userActivityEnd: 0
+                activityDate: 0,
+                activityStart: 0,
+                activityEnd: 0
             }
     }
 

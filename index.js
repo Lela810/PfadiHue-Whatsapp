@@ -4,8 +4,6 @@
     const { connect, connection } = require('mongoose');
 
 
-
-
     if (!process.env.MONGODB_USERNAME || !process.env.MONGODB_PASSWORD) {
         connect(`mongodb://${process.env.MONGODB}/pfadihue-whatsapp`, { useNewUrlParser: true })
     } else {
