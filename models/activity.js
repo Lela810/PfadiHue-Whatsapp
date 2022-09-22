@@ -21,6 +21,10 @@ const activitySchema = new mongoose.Schema({
         type: String,
         required: false
     },
+    reminded: {
+        type: Boolean,
+        required: false
+    },
     meldungen: {
         type: Object,
         required: false

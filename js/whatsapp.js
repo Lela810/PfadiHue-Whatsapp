@@ -6,6 +6,7 @@ const { whatsappGroup } = require('./whatsapp/whatsappGroup.js');
 const { whatsappPrivate } = require('./whatsapp/whatsappPrivate.js');
 const de = require('../locales/de.json');
 const { checkTeilnehmer, createTeilnehmer } = require('./db.js');
+const { remindEveryone } = require('./whatsapp/whatsappReminder.js');
 
 
 
@@ -202,6 +203,7 @@ async function startWhatsapp() {
     });
 
     setInterval(resetProgress, 10000);
+    setInterval(remindEveryone, 5000);
 
     async function resetProgress() {
         for (userForTimestamp in usersPrivateObject) {
@@ -221,6 +223,7 @@ async function startWhatsapp() {
             }
         }
     }
+
 
     client.initialize()
 }

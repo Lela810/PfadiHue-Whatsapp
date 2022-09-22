@@ -40,6 +40,17 @@ async function getTeilnehmer(tel) {
 }
 
 
+async function getAllTeilnehmer() {
+    try {
+        const scout = (await teilnehmer.find())
+        return scout
+    } catch (err) {
+        console.error(err);
+        return false;
+    }
+}
+
+
 async function createActivity(json) {
 
     if (!json.meldungen) {
@@ -68,6 +79,22 @@ async function registerForActivity(activityID, meldung, tel) {
     }
 
     activityEntry.markModified('meldungen')
+
+    try {
+        await activityEntry.save()
+    } catch (err) {
+        throw err;
+    }
+    return
+}
+
+
+async function remindedForActivity(activityID) {
+    let activityEntry = (await activity.find({ 'activityID': activityID }))[0];
+
+    activityEntry.reminded = true
+
+    activityEntry.markModified('reminded')
 
     try {
         await activityEntry.save()
@@ -151,4 +178,4 @@ async function loadAllRegistrations(activityID) {
 }
 
 
-module.exports = { getTeilnehmer, checkTeilnehmer, createTeilnehmer, createActivity, loadAllActivities, registerForActivity, loadAllFutureActivities, loadAllRegistrations, unregisterForActivity, loadAllFutureActivitiesTN }
+module.exports = { remindedForActivity, getAllTeilnehmer, getTeilnehmer, checkTeilnehmer, createTeilnehmer, createActivity, loadAllActivities, registerForActivity, loadAllFutureActivities, loadAllRegistrations, unregisterForActivity, loadAllFutureActivitiesTN }

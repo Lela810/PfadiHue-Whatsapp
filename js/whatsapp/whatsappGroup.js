@@ -1,9 +1,6 @@
-const { loadAllActivities, loadAllFutureActivities, createActivity, loadAllRegistrations, getTeilnehmer } = require('../db.js')
-const { List } = require('whatsapp-web.js');
+const { loadAllFutureActivities, createActivity, loadAllRegistrations, getTeilnehmer } = require('../db.js')
 const moment = require('moment');
-const activity = require('../../models/activity.js');
 const de = require('../../locales/de.json');
-const _ = require('mongoose-sequence');
 
 
 async function parseRegistrations(futureActivitiesChoice) {
