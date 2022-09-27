@@ -4,16 +4,24 @@ const de = require('../../locales/de.json');
 
 
 async function parseRegistrations(futureActivitiesChoice) {
-    const registrations = (await loadAllRegistrations(futureActivitiesChoice.activityID))
+    const registrationsData = (await loadAllRegistrations(futureActivitiesChoice.activityID))
+    let registrations
+    try {
+        registrations = Object.keys(registrationsData)
+    } catch {
+        registrations = []
+    }
+
     let messageAbmeldungen =
         "*Aktivität vom " +
         moment(futureActivitiesChoice.date).format('DD.MM.YYYY') +
         "* \n" +
         de.whatsappGroupAbmeldungen
 
-    if (Object.keys(registrations) > 0) {
+
+    if (Object.keys(registrations).length > 0) {
         for (registration in registrations) {
-            const teilnehmer = await getTeilnehmer(registrations[registration].tel)
+            const teilnehmer = await getTeilnehmer(registrations[registration])
             let counterAbmeldungen = 1
             messageAbmeldungen += ` *${counterAbmeldungen})* ${teilnehmer.scoutname} (${teilnehmer.pushname}) - +${teilnehmer.telephone}\n`
             counterAbmeldungen++
@@ -64,7 +72,7 @@ async function whatsappGroup(userMenu, message, activityDate, activityStart, act
 
             const futureActivities = (await loadAllFutureActivities())
             let messagePlannedActivities = de.whatsappGroupPlannedActivities
-            if (futureActivities) {
+            if (futureActivities.length > 0) {
                 let counterPlannedActivities = 1
                 for (futureActivity in futureActivities) {
                     messagePlannedActivities += ` *${counterPlannedActivities})* ${moment(futureActivities[futureActivity].date).format('DD.MM.YYYY')} ${futureActivities[futureActivity].startzeit} - ${futureActivities[futureActivity].endzeit} Uhr\n`
@@ -84,11 +92,17 @@ async function whatsappGroup(userMenu, message, activityDate, activityStart, act
 
             const futureActivitiesMeldungen = (await loadAllFutureActivities())
             let messageMeldungen = de.whatsappGroupChooseActivity
-            if (futureActivitiesMeldungen) {
+            if (futureActivitiesMeldungen.length > 1) {
                 let counterPlannedActivities = 1
                 for (futureActivity in futureActivitiesMeldungen) {
                     messageMeldungen += ` *${counterPlannedActivities})* ${moment(futureActivitiesMeldungen[futureActivity].date).format('DD.MM.YYYY')} ${futureActivitiesMeldungen[futureActivity].startzeit} - ${futureActivitiesMeldungen[futureActivity].endzeit} Uhr\n`
                     counterPlannedActivities++
+                }
+            } else if (futureActivitiesMeldungen.length == 1) {
+                await chat.sendMessage(await parseRegistrations(futureActivitiesMeldungen[0]))
+                await chat.sendMessage(de.whatsappGroupStart);
+                return {
+                    userMenu: 'start'
                 }
             } else {
                 messageMeldungen = de.whatsappGroupNoActivities
@@ -98,13 +112,7 @@ async function whatsappGroup(userMenu, message, activityDate, activityStart, act
                     userMenu: 'start'
                 }
             }
-            if (futureActivitiesMeldungen.length < 2) {
-                await chat.sendMessage(await parseRegistrations(futureActivitiesMeldungen[0]))
-                await chat.sendMessage(de.whatsappGroupStart);
-                return {
-                    userMenu: 'start'
-                }
-            }
+
             messageMeldungen += de.whatsappGlobalStop
             await chat.sendMessage(messageMeldungen)
             return {

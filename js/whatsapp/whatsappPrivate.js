@@ -95,11 +95,13 @@ async function whatsappPrivate(userMenu, message, futureActivities, lastMessage)
                 return {
                     userMenu: 1.1
                 }
-            } else if (futureActivities[messageText - 1].meldungen[user.number]) {
-                await chat.sendMessage(de.whatsappPrivateBereitsAbgemeldet)
-                await chat.sendMessage(lastMessage)
-                return {
-                    userMenu: 1.1
+            } else if (futureActivities[messageText - 1].meldungen) {
+                if (futureActivities[messageText - 1].meldungen[user.number]) {
+                    await chat.sendMessage(de.whatsappPrivateBereitsAbgemeldet)
+                    await chat.sendMessage(lastMessage)
+                    return {
+                        userMenu: 1.1
+                    }
                 }
             }
 
