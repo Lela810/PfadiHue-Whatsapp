@@ -31,6 +31,7 @@
     "whatsappPrivateRegisterConfirm": "Bitte bestätige mit *Ja* oder *Nein*, dass\n>> *{pfadinamen}* \ndein Pfadiname ist ⚜️\n\n_Dieser kann nichtmehr geändert werden_",
     "whatsappPrivateRegisterConfirmYes": "Danke! Du heisst jetzt {pfadinamen} ⚜️",
     "whatsappPrivateBereitsAbgemeldet": "Du hast dich für diese Aktivität bereits abgemeldet 😟",
+    "whatsappPrivateReminder": "*Nicht Vergessen:*\nHeute um {start} Uhr startet die Aktivität 🥳",
 
     "whatsappGlobalStop": "_*STOP)* Abbrechen_"
 

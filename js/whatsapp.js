@@ -26,7 +26,7 @@ async function startWhatsapp() {
         client = new Client();
     } else {
         client = new Client({
-            authStrategy: new LocalAuth(),
+            authStrategy: new LocalAuth({ clientId: "interaction" }),
             puppeteer: {
                 headless: true,
                 args: ['--no-sandbox', '--disable-setuid-sandbox']
@@ -54,10 +54,17 @@ async function startWhatsapp() {
 
     });
 
+
     client.on('ready', () => {
         console.log('Client is ready!');
         client.sendPresenceAvailable()
+
+        setInterval(async() => {
+            await remindEveryone(client)
+        }, 5000)
+
     });
+
 
     let usersObject = new Object();
     let usersPrivateObject = new Object();
@@ -66,6 +73,7 @@ async function startWhatsapp() {
 
         const chat = await message.getChat()
         const user = await message.getContact()
+
 
         if (chat.isGroup) {
 
@@ -139,7 +147,8 @@ async function startWhatsapp() {
                             const jsonTeilnehmer = {
                                 telephone: user.number,
                                 scoutname: usersPrivateObject[user.number].scoutname,
-                                pushname: user.pushname
+                                pushname: user.pushname,
+                                chatid: (await message.getChat()).id
                             }
                             await createTeilnehmer(jsonTeilnehmer)
 
@@ -206,8 +215,7 @@ async function startWhatsapp() {
 
     });
 
-    setInterval(resetProgress, 10000);
-    setInterval(remindEveryone, 5000);
+    setInterval(await resetProgress, 10000);
 
     async function resetProgress() {
         for (userForTimestamp in usersPrivateObject) {

@@ -14,6 +14,10 @@ const teilnehmerSchema = new mongoose.Schema({
     pushname: {
         type: String,
         required: false
+    },
+    chatid: {
+        type: Object,
+        required: false
     }
 })
 

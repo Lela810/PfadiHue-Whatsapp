@@ -31,7 +31,7 @@ async function checkTeilnehmer(tel) {
 
 async function getTeilnehmer(tel) {
     try {
-        const scout = (await teilnehmer.find({ telephone: tel }))[0]
+        const scout = (await teilnehmer.find({ 'telephone': tel }))[0]
         return scout
     } catch (err) {
         console.error(err);
