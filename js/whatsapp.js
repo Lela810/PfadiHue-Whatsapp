@@ -164,7 +164,7 @@ async function startWhatsapp() {
                         }
 
                     } else if (usersPrivateObject[user.number].userMenu == 'registrationConfirm') {
-                        messageText = toLowerCase(messageText)
+                        messageText = messageText.toLowerCase()
                             .replace('ä', 'ae')
                             .replace('ö', 'oe')
                             .replace('ü', 'ue')
