@@ -155,6 +155,10 @@ async function startWhatsapp() {
                         }
 
                     } else if (usersPrivateObject[user.number].userMenu == 'registrationConfirm') {
+                        messageText = tolowercase(messageText)
+                            .replace('ä', 'ae')
+                            .replace('ö', 'oe')
+                            .replace('ü', 'ue')
                         if (onlyLetters(messageText) && messageText.length <= 15) {
                             await chat.sendMessage(
                                 de.whatsappPrivateRegisterConfirm
