@@ -2,7 +2,7 @@ version: '3.3'
 services:
   web:
     container_name: Pfadihue-Whatsapp
-    build: .
+    image: ghcr.io/lela810/pfadihue-whatsapp:main
     restart: unless-stopped
     network_mode: host
     env_file:
